@@ -29,12 +29,14 @@ subscribe(ClientPid, OldWard, NewWard) -> % ward se promijenio evidentno
   set(my_ward, NewWard),
   ok.
 
+notify([], _) -> ok;
 notify([W|Wards], Event)
   {_, WardPid} = ets:get(wards, W),
   WardPid ! Event,
   case node(WardPid) of
     node() -> ok;
     GameNode -> ?SUPER_NODE ! {node(), GameNode, W} %% kopija
+  end.
 
 handover(GameNode, PlayerData) ->
   spawn(GameNode, node_conductor, player_handover/2, [self(), PlayerData]). %% self() pid je potreban da spawn-ani proces, kad je spreman, moze playeru poslati upute o novom hostu, napraviti ward:replace_client(OldClient, NewClient) gdje ce new client na tom hostu ubiti biti self() te potom ubiti client_handler koji vise za njega nije odgovoran.
