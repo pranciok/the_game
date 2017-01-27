@@ -1,7 +1,7 @@
--module(node_conductor).
+-module(node_commodore).
 -behaviour(gen_server).
 
--include("../include/settings.hrl").
+-include("settings.hrl").
 
 -export([start_link/0, create_player/1, stop_node/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -13,7 +13,9 @@
 start_link() ->
   ward_initialization:create_ward_table(),
   ward_initialization:populate_blank_ward_table(),
-  gen_server:start_link(?MODULE, [#node_state{name = ?THIS_NODE, no_of_wards = ?NO_OF_WARDS}], []).
+  {ok, Pid} = gen_server:start_link(?MODULE, [#node_state{name = node(), no_of_wards = ?NO_OF_WARDS}], []),
+  register(game_commodore, Pid),
+  {ok, Pid}.
 
 create_player(Pid) ->
   gen_server:cast(Pid, create_player).
@@ -57,8 +59,8 @@ start_player(WardId, WardPid) ->
   {X, Y} = WardId,
   TopLeftWardCornerX = X * ?WARD_SIZE,
   TopLeftWardCornerY = Y * ?WARD_SIZE,
-  PlayerSpawnX = TopLeftWardCornerX + rand(?WARD_SIZE),
-  PlayerSpawnY = TopLeftWardCornerY + rand(?WARD_SIZE),
+  PlayerSpawnX = TopLeftWardCornerX + rand:uniform(?WARD_SIZE),
+  PlayerSpawnY = TopLeftWardCornerY + rand:uniform(?WARD_SIZE),
   ClientPid = client_handler:start_client(WardId),
   ward:add_client(WardPid, ClientPid),
   player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY).

@@ -1,5 +1,5 @@
 -module(ward_initialization).
--include("../include/settings.hrl").
+-include("settings.hrl").
 
 -export([create_ward_table/0, populate_blank_ward_table/0]).
 

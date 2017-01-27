@@ -1,18 +1,16 @@
 -module(ward).
 -behaviour(gen_server).
 
--include("../include/settings.hrl").
+-include("settings.hrl").
 
--export([start_link/0, start_ward/1, add_client/2, remove_client/2, replace_client/3, broadcast/2]).
+-export([start_ward/1, stop_ward/1, add_client/2, remove_client/2, replace_client/3, broadcast/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
-
--record(node_state, {name, no_of_wards}).
 
 %%% Client API
 start_ward(WardId) ->
   WardPid = gen_server:start(?MODULE, [], []),
-  ets:insert(wards, {WardId, WardPid, Node(), 0}), %% node() je vjerovatno bespotreban, postoji samo za potrebe testiranja
+  ets:insert(wards, {WardId, WardPid, node(), 0}), %% node() je vjerovatno bespotreban, postoji samo za potrebe testiranja
   WardPid.
 
 add_client(Pid, ClientPid) ->
@@ -24,11 +22,14 @@ remove_client(Pid, ClientPid) ->
 replace_client(Pid, OldClientPid, NewClientPid) ->
   gen_server:cast(Pid, {replace, OldClientPid, NewClientPid}).
 
-broadcast(Pid, Event) ->
-  gen_server:cast(Pid, {broadcast, Event}).
+broadcast(WardId, undefined, Event) ->
+  WardPid = start_ward(WardId),
+  gen_server:cast(WardPid, {broadcast, Event});
+broadcast(_, WardPid, Event) ->
+  gen_server:cast(WardPid, {broadcast, Event}).
 
 %% Synchronous call
-stop_node(Pid) ->
+stop_ward(Pid) ->
     gen_server:call(Pid, terminate).
 
 %%% Server functions
@@ -37,10 +38,10 @@ init([]) -> {ok, []}. %% no treatment of info here!
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.
 
-handle_cast({add, ClinetPid}, Clients) ->
+handle_cast({add, ClientPid}, Clients) ->
   {noreply, [ClientPid|Clients]};
 
-handle_cast({remove, ClinetPid}, Clients) ->
+handle_cast({remove, ClientPid}, Clients) ->
   {noreply, lists:delete(ClientPid, Clients)};
 
 handle_cast({replace, OldPid, NewPid}, Clients) ->
@@ -50,7 +51,7 @@ handle_cast({replace, OldPid, NewPid}, Clients) ->
 handle_cast({broadcast, Event}, Clients) ->
   lists:foreach(fun(ClientPid) ->
                       client_handler:nearby_event(ClientPid, Event)
-                end, Clients)
+                end, Clients),
   {noreply, Clients}.
 
 handle_info(Msg, Cats) ->

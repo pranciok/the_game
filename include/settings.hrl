@@ -1,17 +1,17 @@
 %%nodes%%
--define(THIS_NODE, gnode1).
 -define(GAME_NODES, [
-  {{0,0},gnode1},
-  {{1,0},gnode2},
-  {{2,0},gnode3},
-  {{0,1},gnode4},
-  {{1,1},gnode5},
-  {{2,1},gnode6},
-  {{0,2},gnode7},
-  {{1,2},gnode8},
-  {{2,2},gnode9}
+  {{0,0},'gnode1@game.cluster'},
+  {{1,0},'gnode2@game.cluster'},
+  {{2,0},'gnode3@game.cluster'},
+  {{0,1},'gnode4@game.cluster'},
+  {{1,1},'gnode5@game.cluster'},
+  {{2,1},'gnode6@game.cluster'},
+  {{0,2},'gnode7@game.cluster'},
+  {{1,2},'gnode8@game.cluster'},
+  {{2,2},'gnode9@game.cluster'}
 ]).
 
+-record(wards, {id, pid, node, weight}).
 
 %% usefull globals %%
 -define(MAX_X, 495000).
@@ -21,6 +21,8 @@
 -define(SQRT_OF_WARDS, 99).
 
 -define(WARD_SIZE, 5000).
+
+-define(SUPER_NODE, 'admiral@game.cluster').
 %%-----------------%%
 
 %% help for calculating wards affected %%
