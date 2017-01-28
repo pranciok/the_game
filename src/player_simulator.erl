@@ -21,7 +21,7 @@ move_player(_, _, 0) -> ok;
 move_player(X, Y, Steps) ->
   client_handler:moved(get(client), {X, Y}),
 
-  NewX = X + round(10 * get(dirX)),
-  NewY = Y + round(10 * get(dirY)),
+  NewX = X + round(100 * get(dirX)),
+  NewY = Y + round(100 * get(dirY)),
   timer:sleep(300),
   move_player(NewX, NewY, Steps - 1).

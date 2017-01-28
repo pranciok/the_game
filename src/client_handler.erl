@@ -37,10 +37,8 @@ handle_call(terminate, _From, State) ->
 %% resubscribaj klijenta ako je promjenio ward...
 %% obavijesti sve wardove, kojih se to tice, da se klijent pomaknuo.
 handle_cast({moved, {X, Y}}, ClientState) ->
-  io:format("client: ~p, clients ward: ~p, current ward: ~p", [self(), get(my_ward), get_ward(X,Y)]),
 	subscribe(self(), get(my_ward), get_ward(X, Y)),
 	Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
-  io:format("WARDS: ~p~n", [Wards]),
 	notify(Wards,
         #player_event{
           client_pid = self(),
@@ -48,11 +46,11 @@ handle_cast({moved, {X, Y}}, ClientState) ->
           from = ClientState#player_state.position,
 					to = {X, Y}
 					}),
-  io:format("my wards: ~p, affected wards: ~p, position: ~p", [get(my_ward), Wards, {X,Y}]),
+  io:format("my ward: ~p~n affected wards: ~p~n position: ~p~n", [get(my_ward), Wards, {X,Y}]),
   {noreply, ClientState#player_state{position = {X, Y}}};
 
 handle_cast({event, Event}, ClientState) ->
-  io:format("got notified about event: ~p~n", [Event]), %% TODO
+  io:format("got notified about event:~nFROM: ~p~n  TO:~p~n", [Event#player_event.from, Event#player_event.to]), %% TODO
   {noreply, ClientState}.
 
 handle_info(Msg, ClientState) ->
@@ -72,6 +70,7 @@ subscribe(ClientPid, OldWard, NewWard) -> % ward se promijenio evidentno
 	[NewW] = mnesia:dirty_read(wards, NewWard),
   ward:remove_client(OldW#wards.pid, ClientPid),
   ward:add_client(NewW#wards.pid, ClientPid), %% bezuvjetno se dodaje na ward podrazumijevaci da moze zavrsiti na wardu sa drugog node-a, medjutim racuna se na to da ce prilikom handovera doci do zamjene pid-ova.
+  put(my_ward, NewWard),
   MyNode = node(),
   case node(NewW#wards.pid) of
     MyNode -> ok;
