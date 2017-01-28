@@ -21,6 +21,7 @@
 -define(SQRT_OF_WARDS, 99).
 
 -define(WARD_SIZE, 5000).
+-define(PLAYER_VISIBILITY, 1000).
 
 -define(SUPER_NODE, 'admiral@game.cluster').
 %%-----------------%%

@@ -28,7 +28,7 @@ stop_client(Pid) ->
 %%% Server functions
 init([WardId]) ->
 	put(my_ward, WardId),
-	{ok, [WardId]}. %% no treatment of info here!
+	{ok, #player_state{position = {0,0}}}.
 
 handle_call(terminate, _From, State) ->
     {stop, normal, ok, State}.
@@ -37,8 +37,10 @@ handle_call(terminate, _From, State) ->
 %% resubscribaj klijenta ako je promjenio ward...
 %% obavijesti sve wardove, kojih se to tice, da se klijent pomaknuo.
 handle_cast({moved, {X, Y}}, ClientState) ->
+  io:format("client: ~p, clients ward: ~p, current ward: ~p", [self(), get(my_ward), get_ward(X,Y)]),
 	subscribe(self(), get(my_ward), get_ward(X, Y)),
 	Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
+  io:format("WARDS: ~p~n", [Wards]),
 	notify(Wards,
         #player_event{
           client_pid = self(),
@@ -46,10 +48,12 @@ handle_cast({moved, {X, Y}}, ClientState) ->
           from = ClientState#player_state.position,
 					to = {X, Y}
 					}),
+  io:format("my wards: ~p, affected wards: ~p, position: ~p", [get(my_ward), Wards, {X,Y}]),
   {noreply, ClientState#player_state{position = {X, Y}}};
 
 handle_cast({event, Event}, ClientState) ->
-	ok. %% TODO
+  io:format("got notified about event: ~p~n", [Event]), %% TODO
+  {noreply, ClientState}.
 
 handle_info(Msg, ClientState) ->
     io:format("Unexpected message: ~p~n",[Msg]),
@@ -64,12 +68,12 @@ code_change(_OldVsn, State, _Extra) ->
 %% internal
 subscribe(_, Ward, Ward) -> ok; % ako su isti stari i novi- nema potrebe za sub
 subscribe(ClientPid, OldWard, NewWard) -> % ward se promijenio evidentno
-	{_, OldWardPid, _, _} = ets:lookup(wards, OldWard),
-	{_, NewWardPid, _, _} = ets:lookup(wards, NewWard),
-  ward:remove_client(OldWardPid, ClientPid),
-  ward:add_client(NewWardPid, ClientPid), %% bezuvjetno se dodaje na ward podrazumijevaci da moze zavrsiti na wardu sa drugog node-a, medjutim racuna se na to da ce prilikom handovera doci do zamjene pid-ova.
+	[OldW] = mnesia:dirty_read(wards, OldWard),
+	[NewW] = mnesia:dirty_read(wards, NewWard),
+  ward:remove_client(OldW#wards.pid, ClientPid),
+  ward:add_client(NewW#wards.pid, ClientPid), %% bezuvjetno se dodaje na ward podrazumijevaci da moze zavrsiti na wardu sa drugog node-a, medjutim racuna se na to da ce prilikom handovera doci do zamjene pid-ova.
   MyNode = node(),
-  case node(NewWardPid) of
+  case node(NewW#wards.pid) of
     MyNode -> ok;
     GameNode -> handover(GameNode, ClientPid) %% podrazumijeva da handover po zavrsetku napravi na lokalnom hostu ward:replace_client(NewWardPid, OldClientPid, NewClientPid)
   end,
@@ -77,12 +81,16 @@ subscribe(ClientPid, OldWard, NewWard) -> % ward se promijenio evidentno
 
 notify([], _) -> ok;
 notify([WardId|Wards], Event) ->
-  {_, WardPid, _, _} = ets:lookup(wards, WardId),
-	ward:broadcast(WardId, WardPid, Event),
+  [Ward] = mnesia:dirty_read(wards, WardId),
+  ward:broadcast(WardId, Ward#wards.pid, Event), %% ako se ustanovi da undefined nodove ipak treba notifieat treba napraviti broadcast_sync call koji vraca pid novostvorenog warda
   MyNode = node(),
-  case node(WardPid) of
-    MyNode -> ok;
-    GameNode -> ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
+  case Ward#wards.pid of
+      undefined -> ok;
+      _ ->
+        case node(Ward#wards.pid) of
+          MyNode -> ok;
+          GameNode -> ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
+        end
   end,
   notify(Wards, Event).
 
@@ -92,9 +100,13 @@ handover(GameNode, PlayerData) ->
 get_wards(Position, Sides) -> get_wards(Position, Sides, []).
 get_wards(_, [], Wards) -> Wards;
 get_wards(Position, [S|Sides], Wards) ->
-  get_wards(Position, Sides, [translate_ward(Position,S) ++ Wards]).
+  AffectedWard = translate_ward(Position, S),
+  case lists:member(AffectedWard, Wards) of
+    true -> get_wards(Position, Sides, Wards);
+    _ -> get_wards(Position, Sides, [AffectedWard|Wards])
+  end.
 
-translate_ward({X, Y}, {XCoef, YCoef}) -> get_ward(X + X*XCoef, Y + Y*YCoef).
+translate_ward({X, Y}, {XCoef, YCoef}) -> get_ward(X + round(?PLAYER_VISIBILITY*XCoef), Y + round(?PLAYER_VISIBILITY*YCoef)).
 
 get_ward(X, Y) ->
-  {X / (?MAX_X / ?SQRT_OF_WARDS), Y / (?MAX_Y / ?SQRT_OF_WARDS)}.
+  {X div (?MAX_X div ?SQRT_OF_WARDS), Y div (?MAX_Y div ?SQRT_OF_WARDS)}.

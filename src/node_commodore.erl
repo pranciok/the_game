@@ -11,11 +11,7 @@
 
 %%% Client API
 start_link() ->
-  ward_initialization:create_ward_table(),
-  ward_initialization:populate_blank_ward_table(),
-  {ok, Pid} = gen_server:start_link(?MODULE, [#node_state{name = node(), no_of_wards = ?NO_OF_WARDS}], []),
-  register(game_commodore, Pid),
-  {ok, Pid}.
+  gen_server:start_link(?MODULE, [#node_state{name = node(), no_of_wards = ?NO_OF_WARDS}], []).
 
 create_player(Pid) ->
   gen_server:cast(Pid, create_player).
@@ -25,7 +21,9 @@ stop_node(Pid) ->
     gen_server:call(Pid, terminate).
 
 %%% Server functions
-init([State]) -> {ok, State}. %% no treatment of info here!
+init([State]) ->
+  register(node_commodore, self()),
+  {ok, State}.
 
 handle_call(terminate, _From, State) ->
     {stop, normal, ok, State}.
@@ -33,8 +31,11 @@ handle_call(terminate, _From, State) ->
 handle_cast(create_player, NodeState) ->
   RandWard = rand:uniform(NodeState#node_state.no_of_wards),
   io:format("~p~n", [RandWard]),
-  {Match, _} = ets:select(wards, [{ {'_','_',gnode1,'_'},[],['$_'] }], RandWard),
-  {WardId, WardPid, _, _} = lists:nth(1, Match),
+  Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
+            [{'<','$3',0.5}],
+            [{{'$1','$2'}}]}],
+  MyWards = mnesia:dirty_select(wards, Match),
+  {WardId, WardPid} = lists:nth(RandWard, MyWards),
   start_player_on_ward(WardId, WardPid),
   {noreply, NodeState}.
 
@@ -50,7 +51,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% internal
 start_player_on_ward(WardId, undefined) ->
-  WardPid = ward:start_ward(WardId), %% dodaje svoj pid u ets pri stvaranju!
+  {ok, WardPid} = ward:start_ward(WardId),
   start_player(WardId, WardPid);
 start_player_on_ward(WardId, WardPid) ->
   start_player(WardId, WardPid).
@@ -61,6 +62,6 @@ start_player(WardId, WardPid) ->
   TopLeftWardCornerY = Y * ?WARD_SIZE,
   PlayerSpawnX = TopLeftWardCornerX + rand:uniform(?WARD_SIZE),
   PlayerSpawnY = TopLeftWardCornerY + rand:uniform(?WARD_SIZE),
-  ClientPid = client_handler:start_client(WardId),
+  {ok, ClientPid} = client_handler:start_client(WardId),
   ward:add_client(WardPid, ClientPid),
   player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY).

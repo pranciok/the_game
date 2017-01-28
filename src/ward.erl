@@ -9,9 +9,9 @@
 
 %%% Client API
 start_ward(WardId) ->
-  WardPid = gen_server:start(?MODULE, [], []),
-  ets:insert(wards, {WardId, WardPid, node(), 0}), %% node() je vjerovatno bespotreban, postoji samo za potrebe testiranja
-  WardPid.
+  {ok, WardPid} = gen_server:start_link(?MODULE, [], []),
+  mnesia:dirty_write(#wards{id=WardId, pid=WardPid, node=node(), weight=0}), %% node() je vjerovatno bespotreban, postoji samo za potrebe testiranja
+  {ok,WardPid}.
 
 add_client(Pid, ClientPid) ->
   gen_server:cast(Pid, {add, ClientPid}).
@@ -23,7 +23,7 @@ replace_client(Pid, OldClientPid, NewClientPid) ->
   gen_server:cast(Pid, {replace, OldClientPid, NewClientPid}).
 
 broadcast(WardId, undefined, Event) ->
-  WardPid = start_ward(WardId),
+  {ok, WardPid} = start_ward(WardId),
   gen_server:cast(WardPid, {broadcast, Event});
 broadcast(_, WardPid, Event) ->
   gen_server:cast(WardPid, {broadcast, Event}).
