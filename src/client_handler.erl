@@ -4,16 +4,19 @@
 
 -include("settings.hrl").
 
--export([start_client/1, moved/2, nearby_event/2, stop_client/1]).
+-export([start_client/1, execute_handover/2, moved/2, nearby_event/2, add_player_pid/2, stop_client/1, stop_client/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
--record(player_state, {position}).
+-record(client_state, {client_pid, player_pid, position}).
 -record(player_event, {client_pid, action, from, to}).
 
 %%% Client API
 start_client(WardId) ->
   gen_server:start(?MODULE, [WardId], []).
+
+execute_handover(WardId, ClientState) ->
+  gen_server:start(?MODULE, [WardId, ClientState], []).
 
 moved(Pid, Position) ->
 	gen_server:cast(Pid, {moved, Position}).
@@ -21,80 +24,123 @@ moved(Pid, Position) ->
 nearby_event(Pid, Event) ->
 	gen_server:cast(Pid, {event, Event}).
 
+add_player_pid(Pid, PlayerPid) ->
+  gen_server:cast(Pid, {add_player_pid, PlayerPid}).
+
 %% Synchronous call
+stop_client(Pid, handed_over) ->
+  io:format("******************** HANDEDOVER DONE ********************~n", []),
+  gen_server:call(Pid, terminate).
+
 stop_client(Pid) ->
-    gen_server:call(Pid, terminate).
+  gen_server:call(Pid, cleanup),
+  gen_server:call(Pid, terminate).
 
 %%% Server functions
 init([WardId]) ->
 	put(my_ward, WardId),
-	{ok, #player_state{position = {0,0}}}.
+	{ok, #client_state{position = {0,0}}};
+
+init([WardId, ClientState]) ->
+  put(my_ward, WardId),
+  [Ward] = mnesia:dirty_read(wards, WardId),
+  OldClientPid = ClientState#client_state.client_pid,
+  ward:replace_client(Ward#wards.pid, OldClientPid, self()),
+  ClientState#client_state.player_pid ! {handover_done, self()},
+  {ok, ClientState#client_state{client_pid = self()}}.
+
+handle_call(cleanup, _From, ClientState) ->
+  ClientState#client_state.player_pid ! stop,
+  {reply, ok, ClientState};
 
 handle_call(terminate, _From, State) ->
-    {stop, normal, ok, State}.
-
+  {stop, normal, ok, State}.
 
 %% resubscribaj klijenta ako je promjenio ward...
 %% obavijesti sve wardove, kojih se to tice, da se klijent pomaknuo.
 handle_cast({moved, {X, Y}}, ClientState) ->
-	subscribe(self(), get(my_ward), get_ward(X, Y)),
-	Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
-	notify(Wards,
-        #player_event{
-          client_pid = self(),
-          action = moved,
-          from = ClientState#player_state.position,
-					to = {X, Y}
-					}),
-  io:format("my ward: ~p~n affected wards: ~p~n position: ~p~n", [get(my_ward), Wards, {X,Y}]),
-  {noreply, ClientState#player_state{position = {X, Y}}};
+	SubResult = subscribe(self(), get(my_ward), get_ward(X, Y), ClientState),
+  case SubResult of
+    nok -> ClientState#client_state.player_pid ! nok;
+    _ ->
+      Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
+  	  notify(Wards,
+          #player_event{
+            client_pid = self(),
+            action = moved,
+            from = ClientState#client_state.position,
+  					to = {X, Y}
+  					}),
+      io:format("CLIENT: ~p, my ward: ~p, affected wards: ~p~n", [self(), get(my_ward), Wards])
+  end,
+  {noreply, ClientState#client_state{position = {X, Y}}};
 
 handle_cast({event, Event}, ClientState) ->
-  io:format("got notified about event:~nFROM: ~p~n  TO:~p~n", [Event#player_event.from, Event#player_event.to]), %% TODO
-  {noreply, ClientState}.
+  case ClientState#client_state.player_pid of
+    undefinded ->
+      io:format("No player PID!~n", []);
+    PlayerPid ->
+      PlayerPid ! {ok, Event#player_event.to}
+  end,
+  {noreply, ClientState};
+
+handle_cast({add_player_pid, PlayerPid}, ClientState) ->
+  PlayerPid ! start_moving,
+  {noreply, ClientState#client_state{player_pid = PlayerPid}}.
 
 handle_info(Msg, ClientState) ->
-    io:format("Unexpected message: ~p~n",[Msg]),
-    {noreply, ClientState}.
+  io:format("Unexpected message: ~p~n",[Msg]),
+  {noreply, ClientState}.
 
-terminate(_, _) ->
-    ok.
+terminate(_, _ClientState) ->
+  ok.
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% internal
-subscribe(_, Ward, Ward) -> ok; % ako su isti stari i novi- nema potrebe za sub
-subscribe(ClientPid, OldWard, NewWard) -> % ward se promijenio evidentno
+subscribe(_, Ward, Ward, _) -> ok; % ako su isti stari i novi - nema potrebe za sub
+subscribe(ClientPid, OldWard, NewWard, ClientState) -> % ward se promijenio evidentno
 	[OldW] = mnesia:dirty_read(wards, OldWard),
-	[NewW] = mnesia:dirty_read(wards, NewWard),
-  ward:remove_client(OldW#wards.pid, ClientPid),
-  ward:add_client(NewW#wards.pid, ClientPid), %% bezuvjetno se dodaje na ward podrazumijevaci da moze zavrsiti na wardu sa drugog node-a, medjutim racuna se na to da ce prilikom handovera doci do zamjene pid-ova.
-  put(my_ward, NewWard),
-  MyNode = node(),
-  case node(NewW#wards.pid) of
-    MyNode -> ok;
-    GameNode -> handover(GameNode, ClientPid) %% podrazumijeva da handover po zavrsetku napravi na lokalnom hostu ward:replace_client(NewWardPid, OldClientPid, NewClientPid)
-  end,
-  ok.
+	NewWardQuery = mnesia:dirty_read(wards, NewWard),
+  case NewWardQuery of
+    [] -> nok;
+    [NewW] ->
+      R = lists:member(NewW#wards.node, ['gnode1@game.cluster', 'gnode2@game.cluster']),
+      case R of %% privremena mjera radi samo dva game node-a
+        true ->
+          put(my_ward, NewWard),
+          ward:remove_client(OldW#wards.pid, ClientPid),
+          ward:add_client(NewW#wards.pid, ClientPid),
+          MyNode = node(),
+          case NewW#wards.node of
+            MyNode -> ok;
+            GameNode ->
+              handover(GameNode, NewW#wards.id, ClientState#client_state{client_pid = ClientPid}) %% podrazumijeva da handover po zavrsetku napravi na lokalnom hostu ward:replace_client(NewWardPid, OldClientPid, NewClientPid)
+          end;
+        _ -> nok
+      end
+  end.
 
 notify([], _) -> ok;
 notify([WardId|Wards], Event) ->
-  [Ward] = mnesia:dirty_read(wards, WardId),
-  ward:broadcast(WardId, Ward#wards.pid, Event), %% ako se ustanovi da undefined nodove ipak treba notifieat treba napraviti broadcast_sync call koji vraca pid novostvorenog warda
-  MyNode = node(),
-  case Ward#wards.pid of
-      undefined -> ok;
-      _ ->
-        case node(Ward#wards.pid) of
-          MyNode -> ok;
-          GameNode -> ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
-        end
+  Any = mnesia:dirty_read(wards, WardId),
+  case Any of
+    [] -> no_ward;
+    [Ward] ->
+      MyNode = node(),
+      ward:broadcast(WardId, Ward#wards.pid, Event),
+      case Ward#wards.node of
+        MyNode -> ok;
+        GameNode ->
+          io:format("**** JUST PINGED ANOTHER NODE! ****~n", []) % ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
+      end
   end,
   notify(Wards, Event).
 
-handover(GameNode, PlayerData) ->
-  gen_server:cast({node_commodore, GameNode}, {self(), PlayerData}). %% self() pid je potreban da spawn-ani proces, kad je spreman, moze playeru poslati upute o novom hostu, napraviti ward:replace_client(OldClient, NewClient) gdje ce new client na tom hostu ubiti biti self() te potom ubiti client_handler koji vise za njega nije odgovoran.
+handover(GameNode, WardId, ClientState) ->
+  io:format("*********************** HANDEDOVER ***********************~n", []),
+  rpc:call(GameNode, client_handler, execute_handover, [WardId, ClientState]).
 
 get_wards(Position, Sides) -> get_wards(Position, Sides, []).
 get_wards(_, [], Wards) -> Wards;

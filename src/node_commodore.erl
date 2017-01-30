@@ -3,7 +3,7 @@
 
 -include("settings.hrl").
 
--export([start_link/0, create_player/1, stop_node/1]).
+-export([start_link/0, create_player/1, stop_all_players/1, stop_node/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
@@ -16,19 +16,20 @@ start_link() ->
 create_player(Pid) ->
   gen_server:cast(Pid, create_player).
 
+stop_all_players(Pid) ->
+  gen_server:cast(Pid, stop_all_players).
+
 %% Synchronous call
+
 stop_node(Pid) ->
-    gen_server:call(Pid, terminate).
+  gen_server:call(Pid, terminate).
 
 %%% Server functions
 init([State]) ->
   register(node_commodore, self()),
   {ok, State}.
 
-handle_call(terminate, _From, State) ->
-    {stop, normal, ok, State}.
-
-handle_cast(create_player, NodeState) ->
+handle_call(create_player, NodeState) ->
   RandWard = rand:uniform(NodeState#node_state.no_of_wards),
   io:format("~p~n", [RandWard]),
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
@@ -36,7 +37,18 @@ handle_cast(create_player, NodeState) ->
             [{{'$1','$2'}}]}],
   MyWards = mnesia:dirty_select(wards, Match),
   {WardId, WardPid} = lists:nth(RandWard, MyWards),
-  start_player_on_ward(WardId, WardPid),
+  PlayerPid = start_player_on_ward(WardId, WardPid),
+  {reply, PlayerPid, NodeState};
+
+handle_call(terminate, _From, State) ->
+  {stop, normal, ok, State}.
+
+handle_cast(stop_all_players, NodeState) ->
+  Match = [{#wards{id = '$1',pid = '$2', node = node(), weight = '$3'},
+            [{'<','$3',0.5}],
+            [{{'$1','$2'}}]}],
+  MyWards = mnesia:dirty_select(wards, Match),
+  stop_players(MyWards),
   {noreply, NodeState}.
 
 handle_info(Msg, Cats) ->
@@ -64,4 +76,11 @@ start_player(WardId, WardPid) ->
   PlayerSpawnY = TopLeftWardCornerY + rand:uniform(?WARD_SIZE),
   {ok, ClientPid} = client_handler:start_client(WardId),
   ward:add_client(WardPid, ClientPid),
-  player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY).
+  PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY),
+  client_handler:add_player_pid(ClientPid, PlayerPid)
+  PlayerPid.
+
+stop_players([]) -> ok;
+stop_players([{_, WardPid}|Wards]) ->
+  ward:stop_ward_players(WardPid),
+  stop_players(Wards).
