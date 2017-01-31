@@ -14,7 +14,7 @@ start_link() ->
   gen_server:start_link(?MODULE, [#node_state{name = node(), no_of_wards = ?NO_OF_WARDS}], []).
 
 create_player(Pid) ->
-  gen_server:cast(Pid, create_player).
+  gen_server:call(Pid, create_player).
 
 stop_all_players(Pid) ->
   gen_server:cast(Pid, stop_all_players).
@@ -29,8 +29,8 @@ init([State]) ->
   register(node_commodore, self()),
   {ok, State}.
 
-handle_call(create_player, NodeState) ->
-  RandWard = rand:uniform(NodeState#node_state.no_of_wards),
+handle_call(create_player, _From, NodeState) ->
+  RandWard = random:uniform(NodeState#node_state.no_of_wards),
   io:format("~p~n", [RandWard]),
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
             [{'<','$3',0.5}],
@@ -72,12 +72,12 @@ start_player(WardId, WardPid) ->
   {X, Y} = WardId,
   TopLeftWardCornerX = X * ?WARD_SIZE,
   TopLeftWardCornerY = Y * ?WARD_SIZE,
-  PlayerSpawnX = TopLeftWardCornerX + rand:uniform(?WARD_SIZE),
-  PlayerSpawnY = TopLeftWardCornerY + rand:uniform(?WARD_SIZE),
+  PlayerSpawnX = TopLeftWardCornerX + random:uniform(?WARD_SIZE),
+  PlayerSpawnY = TopLeftWardCornerY + random:uniform(?WARD_SIZE),
   {ok, ClientPid} = client_handler:start_client(WardId),
   ward:add_client(WardPid, ClientPid),
   PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY),
-  client_handler:add_player_pid(ClientPid, PlayerPid)
+  client_handler:add_player_pid(ClientPid, PlayerPid),
   PlayerPid.
 
 stop_players([]) -> ok;

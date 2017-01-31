@@ -5,14 +5,18 @@
 -include("settings.hrl").
 
 all() ->
-  {_, Nodes} = lists:unzip(?GAME_NODES),
-  all(Nodes).
+  net_kernel:connect_node('gnode1@game.cluster'),
+  ets:new(players,[set, named_table, public]),
+  % ok = mnesia:create_schema(['admiral@game.cluster']),
+  % {_, Nodes} = lists:unzip(?GAME_NODES),
+  % ok = mnesia:create_schema(['admiral@game.cluster'|Nodes]), %% SAMO PRI INSTALACIJI!
+  % ok = mnesia:create_schema(['admiral@game.cluster', 'gnode1@game.cluster', 'gnode2@game.cluster']),
+  all(['gnode1@game.cluster', 'gnode2@game.cluster']).
 all(Nodes) ->
-  % ok = mnesia:create_schema(Nodes), %% SAMO PRI INSTALACIJI!
-  rpc:multicall(Nodes, application, start, [mnesia]),
+  rpc:multicall(['admiral@game.cluster'|Nodes], application, start, [mnesia]),
   mnesia:create_table(wards,
       [{attributes, record_info(fields, wards)},
-      {ram_copies, Nodes},
+      {ram_copies, ['admiral@game.cluster'|Nodes]},
       {type, set}]),
   populate_blank_ward_table(),
   rpc:multicall(Nodes, node_commodore, start_link, []).

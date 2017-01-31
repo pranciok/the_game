@@ -70,8 +70,8 @@ handle_cast({moved, {X, Y}}, ClientState) ->
             action = moved,
             from = ClientState#client_state.position,
   					to = {X, Y}
-  					}),
-      io:format("CLIENT: ~p, my ward: ~p, affected wards: ~p~n", [self(), get(my_ward), Wards])
+  					})
+    %  io:format("CLIENT: ~p, my ward: ~p, affected wards: ~p~n", [self(), get(my_ward), Wards])
   end,
   {noreply, ClientState#client_state{position = {X, Y}}};
 
