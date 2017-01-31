@@ -19,7 +19,7 @@ player_init(PlayerState) ->
     start_moving -> start_moving(PlayerState)
   end.
 
-start_moving(PlayerState) ->
+start_moving(PlayerState) ->  
   Directions = [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW],
   random:seed(erlang:timestamp()),
   Direction = lists:nth(random:uniform(8), Directions),
@@ -43,9 +43,9 @@ loop_player(PlayerState) ->
                         5;
                       Counter -> Counter - 1
                     end,
-      NewX = X + round(200 * PlayerState#player_state.x_coef),
-      NewY = Y + round(200 * PlayerState#player_state.y_coef),
-      timer:sleep(100),
+      NewX = X + round(150 * PlayerState#player_state.x_coef),
+      NewY = Y + round(150 * PlayerState#player_state.y_coef),
+      timer:sleep(50),
       NewPlayerState = PlayerState#player_state{from = {X, Y}, to = {NewX, NewY}, skip_counter = SkipCounter},
       loop_player(NewPlayerState);
     nok ->

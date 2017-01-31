@@ -33,7 +33,6 @@ handle_cast({add_clients, No}, NoOfClientsTotal) ->
   {noreply, NoOfClientsTotal + No};
 
 handle_cast({ping, {{_FromWard, FromNode}, {ToWard, ToNode}}}, NoOfClientsTotal) ->
-  % ets:insert(disputes, {WardId, FromNode, ToNode}),
   Result = ets:lookup(disputes, {ToWard, FromNode}),
   case Result of
     [] -> ets:insert(disputes, {{ToWard, FromNode}, 1, erlang:timestamp(), ?PING_TRESHOLD});
