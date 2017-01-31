@@ -9,7 +9,7 @@
 
 %%% Client API %%%
 start_ward(WardId) ->
-  {ok, WardPid} = gen_server:start_link(?MODULE, [], []),
+  {ok, WardPid} = gen_server:start_link(?MODULE, [WardId], []),
   [Ward] = mnesia:dirty_read(wards, WardId),
   mnesia:dirty_write(Ward#wards{pid=WardPid}),
   {ok, WardPid}.
@@ -45,16 +45,26 @@ stop_ward(Pid) ->
     gen_server:call(Pid, terminate).
 
 %%% Server functions
-init([]) ->
+init([WardId]) ->
+  put(ward_id, WardId),
   {ok, []}.
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.
 
 handle_cast({add, ClientPid}, Clients) ->
+  WardId = get(ward_id),
+  [Ward] = mnesia:dirty_read(wards, WardId),
+  Weight = Ward#wards.weight + 1,
+  mnesia:dirty_write(Ward#wards{weight=Weight}),
   {noreply, [ClientPid|Clients]};
 
 handle_cast({remove, ClientPid}, Clients) ->
+  WardId = get(ward_id),
+  [Ward] = mnesia:dirty_read(wards, WardId),
+  Weight = Ward#wards.weight - 1,
+  mnesia:dirty_write(Ward#wards{weight=Weight}),
+
   {noreply, lists:delete(ClientPid, Clients)};
 
 handle_cast({replace, OldPid, NewPid}, Clients) ->

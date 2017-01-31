@@ -34,7 +34,6 @@ init([State]) ->
 
 handle_call(create_player, _From, NodeState) ->
   RandWard = random:uniform(NodeState#node_state.no_of_wards),
-  io:format("~p~n", [RandWard]),
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
             [{'<','$3',0.5}],
             [{{'$1','$2'}}]}],

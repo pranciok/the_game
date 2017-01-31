@@ -29,7 +29,7 @@ add_player_pid(Pid, PlayerPid) ->
 
 %% Synchronous call
 stop_client(Pid, handed_over) ->
-  io:format("*** HANDEDOVER HAPPENED ***~n", []),
+  % io:format("*** HANDEDOVER HAPPENED ***~n", []),
   gen_server:call(Pid, terminate).
 
 stop_client(Pid) ->
@@ -59,19 +59,23 @@ handle_call(terminate, _From, State) ->
 %% resubscribaj klijenta ako je promjenio ward...
 %% obavijesti sve wardove, kojih se to tice, da se klijent pomaknuo.
 handle_cast({moved, {X, Y}}, ClientState) ->
-	SubResult = subscribe(self(), get(my_ward), get_ward(X, Y), ClientState),
-  case SubResult of
-    nok -> ClientState#client_state.player_pid ! nok;
-    _ ->
-      Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
-  	  notify(Wards,
-          #player_event{
-            client_pid = self(),
-            action = moved,
-            from = ClientState#client_state.position,
-  					to = {X, Y}
-  					})
-    %  io:format("CLIENT: ~p, my ward: ~p, affected wards: ~p~n", [self(), get(my_ward), Wards])
+  if X < 0 orelse X > ?MAX_X orelse Y < 0 orelse Y > ?MAX_Y ->
+    ClientState#client_state.player_pid ! nok;
+    true ->
+      SubResult = subscribe(self(), get(my_ward), get_ward(X, Y), ClientState),
+      case SubResult of
+        nok -> ClientState#client_state.player_pid ! nok;
+        _ ->
+          Wards = get_wards({X, Y}, [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW]),
+          notify(Wards,
+              #player_event{
+                client_pid = self(),
+                action = moved,
+                from = ClientState#client_state.position,
+                to = {X, Y}
+                })
+      %  io:format("CLIENT: ~p, my ward: ~p, affected wards: ~p~n", [self(), get(my_ward), Wards])
+      end
   end,
   {noreply, ClientState#client_state{position = {X, Y}}};
 
@@ -106,9 +110,9 @@ subscribe(ClientPid, OldWard, NewWard, ClientState) -> % ward se promijenio evid
   case NewWardQuery of
     [] -> nok;
     [NewW] ->
-      R = lists:member(NewW#wards.node, ['gnode1@game.cluster', 'gnode2@game.cluster']),
-      case R of %% privremena mjera radi samo dva game node-a
-        true ->
+      %R = lists:member(NewW#wards.node, ['gnode1@game.cluster', 'gnode2@game.cluster']),
+      %case R of %% privremena mjera radi samo dva game node-a
+      %  true ->
           put(my_ward, NewWard),
           ward:remove_client(OldW#wards.pid, ClientPid),
           ward:add_client(NewW#wards.pid, ClientPid),
@@ -117,9 +121,9 @@ subscribe(ClientPid, OldWard, NewWard, ClientState) -> % ward se promijenio evid
             MyNode -> ok;
             GameNode ->
               handover(GameNode, NewW#wards.id, ClientState#client_state{client_pid = ClientPid}) %% podrazumijeva da handover po zavrsetku napravi na lokalnom hostu ward:replace_client(NewWardPid, OldClientPid, NewClientPid)
-          end;
-        _ -> nok
-      end
+          end
+      %  _ -> nok
+      % end
   end.
 
 notify([], _) -> ok;
@@ -132,8 +136,7 @@ notify([WardId|Wards], Event) ->
       ward:broadcast(WardId, Ward#wards.pid, Event),
       case Ward#wards.node of
         MyNode -> ok;
-        GameNode -> ok
-          % io:format("PING~n", []) % ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
+        GameNode -> rpc:call('admiral@game.cluster', admiral, ping, [{WardId, node(), GameNode}])
       end
   end,
   notify(Wards, Event).

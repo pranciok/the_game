@@ -11,6 +11,19 @@
   {{2,2},'gnode9@game.cluster'}
 ]).
 
+-define(COLOURS, [
+  {'gnode1@game.cluster', {0.0, 0.7, 0.2, 0.6}},
+  {'gnode2@game.cluster', {0.7, 0.0, 0.2, 0.6}},
+  {'gnode3@game.cluster', {0.7, 0.7, 0.0, 0.6}},
+  {'gnode4@game.cluster', {0.7, 0.0, 0.7, 0.6}},
+  {'gnode5@game.cluster', {0.7, 0.5, 0.1, 0.6}},
+  {'gnode6@game.cluster', {0.0, 0.7, 0.7, 0.6}},
+  {'gnode7@game.cluster', {0.9, 0.6, 0.6, 0.8}},
+  {'gnode8@game.cluster', {0.0, 0.2, 0.7, 0.8}},
+  {'gnode9@game.cluster', {0.4, 0.6, 0.9, 0.8}}
+]).
+
+
 -record(wards, {id, pid, node, weight}).
 
 %% usefull globals %%

@@ -2,7 +2,7 @@
 
 % values for setting up the display
 -define(WIDTH, 1000).
--define(HEIGHT, 1000).
+-define(HEIGHT, 720).
 -define(TITLE , "Game Simulator").
 
 -export([ start/0 ]).
@@ -50,7 +50,7 @@ add_player( World, CircleImg,  Pid ) ->
         Result = ets:lookup(players, Pid),
         Location = case Result of
                       [] -> {0, 0};
-                      [{_Pid, L}] -> L
+                      [{_Pid, L, _C}] -> L
                    end,
         Circle = new_player( CircleImg, Location, Pid ),
         world:add_actor( World, Circle );
@@ -59,7 +59,6 @@ add_player( World, CircleImg,  Pid ) ->
 
 new_player(CircleImg, XY, Pid) ->
     Radius = 10,
-    Color  = { 0.6, 0.6, 0.6, 0.6 },
     Size   = { Radius*2, Radius*2 },
 
     State  = actor_state:new( circle, XY, Size, [
@@ -71,13 +70,19 @@ new_player(CircleImg, XY, Pid) ->
         Result = ets:lookup(players, Pid),
         {X, Y} = case Result of
                     [] -> {0, 0};
-                    [{_Pid, {XTemp, YTemp}}] ->
+                    [{_Pid, {XTemp, YTemp}, _Colour}] ->
                       {XTemp, YTemp}
                  end,
         actor_state:set_xy(AS, X, Y)
     end,
 
     Paint = fun( AS, G ) ->
+      Pid = actor_state:get(AS, pid),
+      Result = ets:lookup(players, Pid),
+      Color = case Result of
+                  [] -> {0, 0};
+                  [{_Pid, _XY, C}] -> C
+               end,
         graphics:set_color( G, Color ),
         graphics:draw_image( G, CircleImg, actor_state:get_xy(AS), actor_state:get_size(AS), true )
     end,

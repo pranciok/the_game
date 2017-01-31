@@ -17,7 +17,7 @@ player_init(PlayerState) ->
   Pid = pid_to_list(self()),
   L = string:tokens(Pid, "."),
   random:seed(list_to_integer(lists:nth(2, L))),
-  ets:insert(players, {self(), scale_down(PlayerState#player_state.to)}),
+  ets:insert(players, {self(), scale_down(PlayerState#player_state.to), {0.8, 0.8, 0.8, 0.8}}),
   receive
     start_moving -> start_moving(PlayerState)
   end.
@@ -38,11 +38,12 @@ loop_player(PlayerState) ->
   client_handler:moved(PlayerState#player_state.client, {X, Y}),
   receive
     {ok, {X, Y}} ->
-      ets:insert(players, {self(), scale_down({X,Y})}),
-      NewX = X + round(400 * PlayerState#player_state.x_coef),
-      NewY = Y + round(400 * PlayerState#player_state.y_coef),
+      NodeColour = proplists:get_value(node(PlayerState#player_state.client), ?COLOURS),
+      ets:insert(players, {self(), scale_down({X,Y}), NodeColour}),
+      NewX = X + round(1000 * PlayerState#player_state.x_coef),
+      NewY = Y + round(1000 * PlayerState#player_state.y_coef),
       NewPlayerState = PlayerState#player_state{from = {X, Y}, to = {NewX, NewY}},
-      timer:sleep(100),
+      timer:sleep(200),
       loop_player(NewPlayerState);
     nok ->
       {OldX, OldY} = PlayerState#player_state.from,
@@ -55,5 +56,5 @@ loop_player(PlayerState) ->
 
 scale_down({RealX, RealY}) ->
   ScaledX = round(RealX / 500),
-  ScaledY = round(RealY / 500),
+  ScaledY = round(RealY / 700),
   {ScaledX, ScaledY}.

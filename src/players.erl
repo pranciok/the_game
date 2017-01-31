@@ -20,7 +20,8 @@ get() ->
   end.
 
 add_players(Players) ->
-  player_stack ! {add, Players}.
+  player_stack ! {add, Players},
+  ok.
 
 stop() -> player_stack ! stop.
 
