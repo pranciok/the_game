@@ -29,7 +29,7 @@ add_player_pid(Pid, PlayerPid) ->
 
 %% Synchronous call
 stop_client(Pid, handed_over) ->
-  io:format("******************** HANDEDOVER DONE ********************~n", []),
+  io:format("*** HANDEDOVER HAPPENED ***~n", []),
   gen_server:call(Pid, terminate).
 
 stop_client(Pid) ->
@@ -132,14 +132,14 @@ notify([WardId|Wards], Event) ->
       ward:broadcast(WardId, Ward#wards.pid, Event),
       case Ward#wards.node of
         MyNode -> ok;
-        GameNode ->
-          io:format("**** JUST PINGED ANOTHER NODE! ****~n", []) % ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
+        GameNode -> ok
+          % io:format("PING~n", []) % ?SUPER_NODE ! {node(), GameNode, WardId} %% kopija
       end
   end,
   notify(Wards, Event).
 
 handover(GameNode, WardId, ClientState) ->
-  io:format("*********************** HANDEDOVER ***********************~n", []),
+  % io:format("******************** HANDEDOVER START ********************~n", []),
   rpc:call(GameNode, client_handler, execute_handover, [WardId, ClientState]).
 
 get_wards(Position, Sides) -> get_wards(Position, Sides, []).

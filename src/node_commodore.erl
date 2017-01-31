@@ -26,6 +26,9 @@ stop_node(Pid) ->
 
 %%% Server functions
 init([State]) ->
+  Pid = pid_to_list(self()),
+  L = string:tokens(Pid, "."),
+  random:seed(list_to_integer(lists:nth(2, L))),
   register(node_commodore, self()),
   {ok, State}.
 

@@ -6,7 +6,7 @@
 
 all() ->
   net_kernel:connect_node('gnode1@game.cluster'),
-  ets:new(players,[set, named_table, public]),
+  ets:new(players,[public, set, named_table]),
   % ok = mnesia:create_schema(['admiral@game.cluster']),
   % {_, Nodes} = lists:unzip(?GAME_NODES),
   % ok = mnesia:create_schema(['admiral@game.cluster'|Nodes]), %% SAMO PRI INSTALACIJI!
@@ -19,7 +19,12 @@ all(Nodes) ->
       {ram_copies, ['admiral@game.cluster'|Nodes]},
       {type, set}]),
   populate_blank_ward_table(),
-  rpc:multicall(Nodes, node_commodore, start_link, []).
+  rpc:multicall(Nodes, node_commodore, start_link, []),
+  players:start(),
+  world_view:start(),
+  timer:sleep(2000),
+  players:create_players(10, 'gnode1@game.cluster'),
+  players:create_players(10, 'gnode2@game.cluster').
 
 populate_blank_ward_table() ->
   y_axis(?SQRT_OF_WARDS - 1).

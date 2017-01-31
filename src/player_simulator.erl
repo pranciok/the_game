@@ -14,6 +14,9 @@ spawn_player(ClientPid, X, Y) ->
           to = {X , Y}}]).
 
 player_init(PlayerState) ->
+  Pid = pid_to_list(self()),
+  L = string:tokens(Pid, "."),
+  random:seed(list_to_integer(lists:nth(2, L))),
   ets:insert(players, {self(), scale_down(PlayerState#player_state.to)}),
   receive
     start_moving -> start_moving(PlayerState)
@@ -22,9 +25,7 @@ player_init(PlayerState) ->
 start_moving(PlayerState) ->
   Directions = [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW],
   Direction = lists:nth(random:uniform(8), Directions),
-  io:format("player changed direction: ~p~n", [Direction]),
   {DirX, DirY} = Direction,
-  % {DirX, DirY} = {1, 0},
   NewDirectionPlayerState = PlayerState#player_state{x_coef = DirX, y_coef = DirY},
   NewPlayerState = loop_player(NewDirectionPlayerState),
   case PlayerState#player_state.stop of
@@ -37,10 +38,9 @@ loop_player(PlayerState) ->
   client_handler:moved(PlayerState#player_state.client, {X, Y}),
   receive
     {ok, {X, Y}} ->
-      R = ets:insert(players, {self(), scale_down({X,Y})}),
-      io:format("pid: ~p, result: ~p, answer:~p~n", [self(), {X,Y}, R]),
-      NewX = X + round(200 * PlayerState#player_state.x_coef),
-      NewY = Y + round(200 * PlayerState#player_state.y_coef),
+      ets:insert(players, {self(), scale_down({X,Y})}),
+      NewX = X + round(400 * PlayerState#player_state.x_coef),
+      NewY = Y + round(400 * PlayerState#player_state.y_coef),
       NewPlayerState = PlayerState#player_state{from = {X, Y}, to = {NewX, NewY}},
       timer:sleep(100),
       loop_player(NewPlayerState);

@@ -50,9 +50,7 @@ add_player( World, CircleImg,  Pid ) ->
         Result = ets:lookup(players, Pid),
         Location = case Result of
                       [] -> {0, 0};
-                      [L] ->
-                        io:format("Outer:~p~n", [L]),
-                        L
+                      [{_Pid, L}] -> L
                    end,
         Circle = new_player( CircleImg, Location, Pid ),
         world:add_actor( World, Circle );
@@ -73,8 +71,7 @@ new_player(CircleImg, XY, Pid) ->
         Result = ets:lookup(players, Pid),
         {X, Y} = case Result of
                     [] -> {0, 0};
-                    [{XTemp, YTemp}] ->
-                      io:format("Inner:~p~n", [{XTemp, YTemp}]),
+                    [{_Pid, {XTemp, YTemp}}] ->
                       {XTemp, YTemp}
                  end,
         actor_state:set_xy(AS, X, Y)
@@ -86,9 +83,3 @@ new_player(CircleImg, XY, Pid) ->
     end,
 
     actor:new( Act, Paint, State ).
-
-string_to_num(N) ->
-    case string:to_integer(N) of
-        {error, Whatever} -> io:format("FAILED: ~p, ~p~n", [Whatever, N]);
-        {F,_Rest} -> F
-    end.
