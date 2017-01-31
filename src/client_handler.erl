@@ -4,7 +4,8 @@
 
 -include("settings.hrl").
 
--export([start_client/1, execute_handover/2, moved/2, nearby_event/2, add_player_pid/2, stop_client/1, stop_client/2]).
+-export([start_client/1, execute_handover/2, moved/2, nearby_event/2,
+      add_player_pid/2, ward_changed_node/2, stop_client/1, stop_client/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
@@ -27,6 +28,8 @@ nearby_event(Pid, Event) ->
 add_player_pid(Pid, PlayerPid) ->
   gen_server:cast(Pid, {add_player_pid, PlayerPid}).
 
+ward_changed_node(Pid, Node) ->
+  gen_server:cast(Pid, {ward_changed_node, Node}).
 %% Synchronous call
 stop_client(Pid, handed_over) ->
   % io:format("*** HANDEDOVER HAPPENED ***~n", []),
@@ -88,6 +91,10 @@ handle_cast({event, Event}, ClientState) ->
   end,
   {noreply, ClientState};
 
+handle_cast({ward_changed_node, Node}, ClientState) ->
+  handover(Node, get(my_ward), ClientState#client_state{client_pid = self()}),
+ {noreply, ClientState};
+
 handle_cast({add_player_pid, PlayerPid}, ClientState) ->
   PlayerPid ! start_moving,
   {noreply, ClientState#client_state{player_pid = PlayerPid}}.
@@ -103,7 +110,14 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% internal
-subscribe(_, Ward, Ward, _) -> ok; % ako su isti stari i novi - nema potrebe za sub
+subscribe(ClientPid, WardId, WardId, ClientState) -> % iako se ward nije promjenio, mozda ga je drugi node oduzeo
+  [W] = mnesia:dirty_read(wards, WardId),
+  MyNode = node(),
+  case W#wards.node of
+    MyNode -> ok;
+    GameNode ->
+      handover(GameNode, W#wards.id, ClientState#client_state{client_pid = ClientPid}) %% podrazumijeva da handover po zavrsetku napravi na lokalnom hostu ward:replace_client(NewWardPid, OldClientPid, NewClientPid)
+  end;
 subscribe(ClientPid, OldWard, NewWard, ClientState) -> % ward se promijenio evidentno
 	[OldW] = mnesia:dirty_read(wards, OldWard),
 	NewWardQuery = mnesia:dirty_read(wards, NewWard),
@@ -136,7 +150,12 @@ notify([WardId|Wards], Event) ->
       ward:broadcast(WardId, Ward#wards.pid, Event),
       case Ward#wards.node of
         MyNode -> ok;
-        GameNode -> rpc:call('admiral@game.cluster', admiral, ping, [{WardId, node(), GameNode}])
+        GameNode ->
+          MyWard = get(my_ward),
+          case WardId of
+             MyWard -> ok;
+             _ -> rpc:call('admiral@game.cluster', admiral, ping, [{{get(my_ward), node()}, {Ward#wards.id, GameNode}}])
+          end
       end
   end,
   notify(Wards, Event).

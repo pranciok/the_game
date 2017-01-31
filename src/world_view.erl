@@ -31,15 +31,13 @@ initiate_players(CircleImg) ->
         Player = players:get(),
         Location = {0,0},
         add_player( Parent, CircleImg, Player ),
-        NewAS = actor_state:set( AS, last_time, now() ),
         actor_state:set_xy(
-                actor_state:set( NewAS, last_location, LastLocation ),
+                actor_state:set( AS, last_location, LastLocation ),
                 Location )
     end,
     Paint = fun (_AS, _G) -> ok end,
     State = actor_state:new([
-            { last_location, {0, 0} },
-            { last_time    , now()  }
+            { last_location, {0, 0} }
     ]),
     actor:new( Act, Paint, State ).
 

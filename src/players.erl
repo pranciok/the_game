@@ -31,6 +31,7 @@ stop_all_players([Node|Nodes]) ->
   stop_all_players(Nodes).
 
 init() ->
+  ets:new(players,[public, set, named_table]),
   register(player_stack, self()),
   loop([]).
 

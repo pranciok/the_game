@@ -1,17 +1,15 @@
--module(initialize).
+-module(game).
 
--export([all/0, all/1, cleanup/0]).
+-export([init/0, init/1, cleanup/0]).
 
 -include("settings.hrl").
 
-all() ->
+init() ->
   net_kernel:connect_node('gnode1@game.cluster'),
-  ets:new(players,[public, set, named_table]),
   {_, Nodes} = lists:unzip(?GAME_NODES),
-   % all(['gnode1@game.cluster', 'gnode2@game.cluster']).
-  all(Nodes).
+  init(Nodes).
 
-all(Nodes) ->
+init(Nodes) ->
   AllNodes = ['admiral@game.cluster'|Nodes],
   % ok = mnesia:create_schema(AllNodes), %% SAMO PRI INSTALACIJI!
   rpc:multicall(AllNodes, application, start, [mnesia]),
@@ -20,12 +18,13 @@ all(Nodes) ->
       {ram_copies, AllNodes},
       {type, set}]),
   populate_blank_ward_table(),
-  timer:sleep(1000),
+  admiral:start_link(),
+  timer:sleep(5000),
   rpc:multicall(Nodes, node_commodore, start_link, []),
   players:start(),
   world_view:start(),
-  timer:sleep(2000),
-  create_players_per_node(5, Nodes).
+  create_players_per_node(5, Nodes),
+  admiral:add_clients_total(2 * ?NO_OF_NODES).
 
 create_players_per_node(_, []) -> ok;
 create_players_per_node(N, [Node|Nodes]) ->
@@ -36,6 +35,7 @@ cleanup() ->
   {_, Nodes} = lists:unzip(?GAME_NODES),
   players:stop_all_players(Nodes),
   rpc:multicall(Nodes, node_commodore, stop_node, [node_commodore]),
+  admiral:stop(),
   rpc:multicall(Nodes, application, stop, [mnesia]).
 
 populate_blank_ward_table() ->
@@ -50,10 +50,10 @@ x_axis(-1, _) -> ok;
 x_axis(X, Y) ->
   NodeKey = {X div 33, Y div 33},
   {_, GNodeName} = proplists:lookup(NodeKey, ?GAME_NODES),
-  % IsMember = lists:member(GNodeName, ['gnode1@game.cluster', 'gnode2@game.cluster']), %% temporary measure
-  % case IsMember of
-  % true ->
-      mnesia:dirty_write(#wards{id={X,Y}, pid=undefined, node=GNodeName, weight=0}),
-  %  _-> ok
-  % end,
+
+  F = fun() ->
+        mnesia:write(#wards{id={X,Y}, pid=undefined, node=GNodeName, weight=0})
+      end,
+  mnesia:activity(transaction, F),
+
   x_axis(X - 1, Y).

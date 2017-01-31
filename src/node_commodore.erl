@@ -26,18 +26,20 @@ stop_node(Pid) ->
 
 %%% Server functions
 init([State]) ->
-  Pid = pid_to_list(self()),
-  L = string:tokens(Pid, "."),
-  random:seed(list_to_integer(lists:nth(2, L))),
+  random:seed(erlang:timestamp()),
   register(node_commodore, self()),
   {ok, State}.
 
 handle_call(create_player, _From, NodeState) ->
-  RandWard = random:uniform(NodeState#node_state.no_of_wards),
+  RandWard = random:uniform(?NO_OF_WARDS - 1),
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
             [{'<','$3',0.5}],
             [{{'$1','$2'}}]}],
-  MyWards = mnesia:dirty_select(wards, Match),
+  F = fun() ->
+        mnesia:select(wards, Match)
+      end,
+  MyWards = mnesia:activity(transaction, F),
+
   {WardId, WardPid} = lists:nth(RandWard, MyWards),
   PlayerPid = start_player_on_ward(WardId, WardPid),
   {reply, PlayerPid, NodeState};

@@ -5,7 +5,7 @@
 
 -include("settings.hrl").
 
--record(player_state, {client, from, to, x_coef, y_coef, stop, node}).
+-record(player_state, {client, from, to, x_coef, y_coef, stop, node, skip_counter = 0}).
 
 spawn_player(ClientPid, X, Y) ->
   spawn('admiral@game.cluster', ?MODULE, player_init,
@@ -14,9 +14,6 @@ spawn_player(ClientPid, X, Y) ->
           to = {X , Y}}]).
 
 player_init(PlayerState) ->
-  Pid = pid_to_list(self()),
-  L = string:tokens(Pid, "."),
-  random:seed(list_to_integer(lists:nth(2, L))),
   ets:insert(players, {self(), scale_down(PlayerState#player_state.to), {0.8, 0.8, 0.8, 0.8}}),
   receive
     start_moving -> start_moving(PlayerState)
@@ -24,6 +21,7 @@ player_init(PlayerState) ->
 
 start_moving(PlayerState) ->
   Directions = [?N, ?NE, ?E, ?SE, ?S, ?SW, ?W, ?NW],
+  random:seed(erlang:timestamp()),
   Direction = lists:nth(random:uniform(8), Directions),
   {DirX, DirY} = Direction,
   NewDirectionPlayerState = PlayerState#player_state{x_coef = DirX, y_coef = DirY},
@@ -39,11 +37,16 @@ loop_player(PlayerState) ->
   receive
     {ok, {X, Y}} ->
       NodeColour = proplists:get_value(node(PlayerState#player_state.client), ?COLOURS),
-      ets:insert(players, {self(), scale_down({X,Y}), NodeColour}),
-      NewX = X + round(1000 * PlayerState#player_state.x_coef),
-      NewY = Y + round(1000 * PlayerState#player_state.y_coef),
-      NewPlayerState = PlayerState#player_state{from = {X, Y}, to = {NewX, NewY}},
-      timer:sleep(200),
+      SkipCounter = case PlayerState#player_state.skip_counter of
+                      0 ->
+                        ets:insert(players, {self(), scale_down({X,Y}), NodeColour}),
+                        5;
+                      Counter -> Counter - 1
+                    end,
+      NewX = X + round(200 * PlayerState#player_state.x_coef),
+      NewY = Y + round(200 * PlayerState#player_state.y_coef),
+      timer:sleep(100),
+      NewPlayerState = PlayerState#player_state{from = {X, Y}, to = {NewX, NewY}, skip_counter = SkipCounter},
       loop_player(NewPlayerState);
     nok ->
       {OldX, OldY} = PlayerState#player_state.from,
