@@ -31,14 +31,14 @@ init([State]) ->
   {ok, State}.
 
 handle_call(create_player, _From, NodeState) ->
-  RandWard = random:uniform(?NO_OF_WARDS - 1),
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
-            [{'<','$3',0.5}],
+            [{'<','$3', 2}],
             [{{'$1','$2'}}]}],
   F = fun() ->
         mnesia:select(wards, Match)
       end,
   MyWards = mnesia:activity(transaction, F),
+  RandWard = random:uniform(length(MyWards)),
 
   {WardId, WardPid} = lists:nth(RandWard, MyWards),
   PlayerPid = start_player_on_ward(WardId, WardPid),
@@ -49,7 +49,7 @@ handle_call(terminate, _From, State) ->
 
 handle_cast(stop_all_players, NodeState) ->
   Match = [{#wards{id = '$1',pid = '$2', node = node(), weight = '$3'},
-            [{'<','$3',0.5}],
+            [],
             [{{'$1','$2'}}]}],
   MyWards = mnesia:dirty_select(wards, Match),
   stop_players(MyWards),

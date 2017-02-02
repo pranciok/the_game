@@ -19,16 +19,17 @@ init(Nodes) ->
       {type, set}]),
   populate_blank_ward_table(),
   admiral:start_link(),
+  admiral:add_clients_total(5 * ?NO_OF_NODES),
   timer:sleep(5000),
   rpc:multicall(Nodes, node_commodore, start_link, []),
   players:start(),
   world_view:start(),
-  create_players_per_node(5, Nodes),
-  admiral:add_clients_total(2 * ?NO_OF_NODES).
+  create_players_per_node(5, Nodes).
 
 create_players_per_node(_, []) -> ok;
 create_players_per_node(N, [Node|Nodes]) ->
   players:create_players(N, Node),
+  rpc:call(Node, mast, start, []),
   create_players_per_node(N, Nodes).
 
 cleanup() ->
