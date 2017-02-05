@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module graphics</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module graphics</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+This is a high level abstraction above the underlying graphics device.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+This is a high level abstraction above the underlying graphics device. It   
+allows the user to draw to the screen. You should never be creating this   
+yourself, instead the MainLoop will retreive this automatically from the   
+Display when it paints and will then automatically pass it to the root Actor   
+inside of itself.</p>
+  
+   <p>Drawing commands are typically split into two variations, draw and fill. The   
+draw will create the outline of the stated shape. The fill command will draw   
+the shape filled.</p>
+  
+   <p>When drawing the 0,0 co-ordinate is the top left corner. Increasing the x   
+value will move across the x-axis to the right. Increasing the y co-ordinate   
+will move the location down the screen. So the location of width,height is   
+located at the bottom left corner of the display.</p>
+  
+   <p>Unless otherwise stated, all drawing commands draw where the co-ordinates   
+given are the top-left corner of what is being draw (i.e. oval, image,   
+rectangle).</p>
+  
+   <p>With many of these functions there are also many different versions, to allow   
+the user to choose if they are passing in tupled and non-tupled values. For   
+the duplicate tupled versions of functions the documentation is typically   
+left brief because it's the same as one of the equivalent functions.</p>
+  
+   You are also free to draw outside of the graphics area. It just won't get
+   shown on the display (because it's outside).
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#draw_image-3">draw_image/3</a></td><td>Draws the given image at the location given.</td></tr>
+<tr><td valign="top"><a href="#draw_image-4">draw_image/4</a></td><td>Draws the given image at the location given.</td></tr>
+<tr><td valign="top"><a href="#draw_image-5">draw_image/5</a></td><td>Draws the given image at the location given.</td></tr>
+<tr><td valign="top"><a href="#draw_image-6">draw_image/6</a></td><td>Draws the given image at the location given.</td></tr>
+<tr><td valign="top"><a href="#draw_image-7">draw_image/7</a></td><td>Draws the given image at the location given.</td></tr>
+<tr><td valign="top"><a href="#draw_image_rotated-4">draw_image_rotated/4</a></td><td></td></tr>
+<tr><td valign="top"><a href="#draw_image_rotated-5">draw_image_rotated/5</a></td><td></td></tr>
+<tr><td valign="top"><a href="#draw_image_rotated-7">draw_image_rotated/7</a></td><td></td></tr>
+<tr><td valign="top"><a href="#draw_line-3">draw_line/3</a></td><td>Draws a Line to the given G from the start position to the end position.</td></tr>
+<tr><td valign="top"><a href="#draw_line-5">draw_line/5</a></td><td>Draws a Line to the given G from the start position to the end position.</td></tr>
+<tr><td valign="top"><a href="#draw_oval-2">draw_oval/2</a></td><td>Draws the outline of an oval.</td></tr>
+<tr><td valign="top"><a href="#draw_oval-3">draw_oval/3</a></td><td>Draws the outline of an oval.</td></tr>
+<tr><td valign="top"><a href="#draw_oval-4">draw_oval/4</a></td><td>Draws the outline of an oval.</td></tr>
+<tr><td valign="top"><a href="#draw_oval-5">draw_oval/5</a></td><td>Draws the outline of an oval.</td></tr>
+<tr><td valign="top"><a href="#draw_oval-6">draw_oval/6</a></td><td>Draws the outline of an oval.</td></tr>
+<tr><td valign="top"><a href="#draw_point-2">draw_point/2</a></td><td>Draws a single point at the position given.</td></tr>
+<tr><td valign="top"><a href="#draw_point-3">draw_point/3</a></td><td>Draws a single point at the position given.</td></tr>
+<tr><td valign="top"><a href="#draw_polygon-2">draw_polygon/2</a></td><td>Draws the outline of a closed polygon to the screen using the given list of points.</td></tr>
+<tr><td valign="top"><a href="#draw_polygon-3">draw_polygon/3</a></td><td>Draws the outline of a closed polygon to the screen using the given list of points.</td></tr>
+<tr><td valign="top"><a href="#draw_polygon-4">draw_polygon/4</a></td><td>Draws the outline of a closed polygon to the screen using the given list of points.</td></tr>
+<tr><td valign="top"><a href="#draw_rect-2">draw_rect/2</a></td><td>Draws the outline of a rectangle.</td></tr>
+<tr><td valign="top"><a href="#draw_rect-3">draw_rect/3</a></td><td>Draws the outline of a rectangle.</td></tr>
+<tr><td valign="top"><a href="#draw_rect-5">draw_rect/5</a></td><td>Draws the outline of a rectangle.</td></tr>
+<tr><td valign="top"><a href="#draw_text-3">draw_text/3</a></td><td>Draws the text to the display using the default font.</td></tr>
+<tr><td valign="top"><a href="#draw_text-4">draw_text/4</a></td><td>Draws the text to the display using the Font given.</td></tr>
+<tr><td valign="top"><a href="#draw_text-5">draw_text/5</a></td><td>Draws the given piece of text to the display.</td></tr>
+<tr><td valign="top"><a href="#fill-1">fill/1</a></td><td>Cleares the given Graphics object with it's currently set draw colour.</td></tr>
+<tr><td valign="top"><a href="#fill_oval-2">fill_oval/2</a></td><td>Draws a filled oval.</td></tr>
+<tr><td valign="top"><a href="#fill_oval-3">fill_oval/3</a></td><td>Draws a filled oval.</td></tr>
+<tr><td valign="top"><a href="#fill_oval-4">fill_oval/4</a></td><td>Draws a filled oval.</td></tr>
+<tr><td valign="top"><a href="#fill_oval-5">fill_oval/5</a></td><td>Draws a filled oval.</td></tr>
+<tr><td valign="top"><a href="#fill_oval-6">fill_oval/6</a></td><td>Draws a filled oval.</td></tr>
+<tr><td valign="top"><a href="#fill_polygon-2">fill_polygon/2</a></td><td>Fills a closed polygon to the screen using the points given.</td></tr>
+<tr><td valign="top"><a href="#fill_polygon-3">fill_polygon/3</a></td><td>Fills a closed polygon to the screen using the points given.</td></tr>
+<tr><td valign="top"><a href="#fill_polygon-4">fill_polygon/4</a></td><td>Fills a closed polygon to the screen using the points given.</td></tr>
+<tr><td valign="top"><a href="#fill_rect-2">fill_rect/2</a></td><td>Draws a filled rectangle.</td></tr>
+<tr><td valign="top"><a href="#fill_rect-3">fill_rect/3</a></td><td>Draws a filled rectangle.</td></tr>
+<tr><td valign="top"><a href="#fill_rect-5">fill_rect/5</a></td><td>Draws a filled rectangle.</td></tr>
+<tr><td valign="top"><a href="#get_clear_color-1">get_clear_color/1</a></td><td>Returns the colour used for clearing the screen.</td></tr>
+<tr><td valign="top"><a href="#get_color-1">get_color/1</a></td><td>Returns the current colour being used for drawing.</td></tr>
+<tr><td valign="top"><a href="#get_height-1">get_height/1</a></td><td>Returns the height of the drawing area inside of the window.</td></tr>
+<tr><td valign="top"><a href="#get_size-1">get_size/1</a></td><td>Returns the size of the drawing area in the window.</td></tr>
+<tr><td valign="top"><a href="#get_width-1">get_width/1</a></td><td>Returns the width of the drawing area inside of the window.</td></tr>
+<tr><td valign="top"><a href="#new-5">new/5</a></td><td>Internal API function for creating a graphics object.</td></tr>
+<tr><td valign="top"><a href="#set_clear_color-2">set_clear_color/2</a></td><td>Sets the clear color for this graphics object.</td></tr>
+<tr><td valign="top"><a href="#set_clear_color-4">set_clear_color/4</a></td><td>Sets the clear color for this graphics object.</td></tr>
+<tr><td valign="top"><a href="#set_clear_color-5">set_clear_color/5</a></td><td>Sets the clear color for this graphics object.</td></tr>
+<tr><td valign="top"><a href="#set_color-2">set_color/2</a></td><td>Sets the color to use when drawing.</td></tr>
+<tr><td valign="top"><a href="#set_color-4">set_color/4</a></td><td>Sets the color to use when drawing.</td></tr>
+<tr><td valign="top"><a href="#set_color-5">set_color/5</a></td><td>Sets the color to use when drawing.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="draw_image-3">draw_image/3</a></h3>
+<div class="spec">
+<p><tt>draw_image(G::<a href="#type-graphics">graphics()</a>, Img::<a href="#type-image">image()</a>, X3::{X::float(), Y::float()}) -&gt; ok</tt></p>
+</div><p>Draws the given image at the location given.</p>
+
+<h3 class="function"><a name="draw_image-4">draw_image/4</a></h3>
+<div class="spec">
+<p><tt>draw_image(G::<a href="#type-graphics">graphics()</a>, Img::<a href="#type-image">image()</a>, X::{X::float(), Y::float()}, IsCentered::{Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws the given image at the location given.</p>
+
+<h3 class="function"><a name="draw_image-5">draw_image/5</a></h3>
+<div class="spec">
+<p><tt>draw_image(G::<a href="#type-graphics">graphics()</a>, Img::<a href="#type-image">image()</a>, X::{X::float(), Y::float()}, Y::{Width::float(), Height::float()}, IsCentered::<a href="#type-boolean">boolean()</a>) -&gt; ok</tt></p>
+</div><p>Draws the given image at the location given.</p>
+
+<h3 class="function"><a name="draw_image-6">draw_image/6</a></h3>
+<div class="spec">
+<p><tt>draw_image(G::<a href="#type-graphics">graphics()</a>, Img::<a href="#type-image">image()</a>, X::float(), Y::float(), Width::float(), Height::float()) -&gt; ok</tt></p>
+</div><p>Draws the given image at the location given.</p>
+
+<h3 class="function"><a name="draw_image-7">draw_image/7</a></h3>
+<div class="spec">
+<p><tt>draw_image(G::<a href="#type-graphics">graphics()</a>, Img::<a href="#type-image">image()</a>, X::float(), Y::float(), Width::float(), Height::float(), IsCentered::<a href="#type-boolean">boolean()</a>) -&gt; ok</tt></p>
+</div><p><p>Draws the given image at the location given.</p>
+ 
+  The width and height allows the image to be re-scaled to that width and height.
+  The IsCentered states if the image should be drawn centred around the location
+  given, or not. So when IsCentered is true the X and Y is the centre of where
+  the image will be drawn. When IsCentered is false it is the top left-corner.
+ </p>
+
+<h3 class="function"><a name="draw_image_rotated-4">draw_image_rotated/4</a></h3>
+<div class="spec">
+<p><tt>draw_image_rotated(G, Img, X3, Angle) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="draw_image_rotated-5">draw_image_rotated/5</a></h3>
+<div class="spec">
+<p><tt>draw_image_rotated(G, Img, X, Y, Angle) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="draw_image_rotated-7">draw_image_rotated/7</a></h3>
+<div class="spec">
+<p><tt>draw_image_rotated(G, Img, X, Y, Width, Height, Angle) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="draw_line-3">draw_line/3</a></h3>
+<div class="spec">
+<p><tt>draw_line(G, X2, X3) -&gt; any()</tt></p>
+</div><p>Draws a Line to the given G from the start position to the end position.
+  This is the tuple version that can take co-ordinates as tuples.
+ </p>
+
+<h3 class="function"><a name="draw_line-5">draw_line/5</a></h3>
+<div class="spec">
+<p><tt>draw_line(G, X1, Y1, X2, Y2) -&gt; any()</tt></p>
+</div><p>Draws a Line to the given G from the start position to the end position.</p>
+
+<h3 class="function"><a name="draw_oval-2">draw_oval/2</a></h3>
+<div class="spec">
+<p><tt>draw_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float(), Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws the outline of an oval.</p>
+
+<h3 class="function"><a name="draw_oval-3">draw_oval/3</a></h3>
+<div class="spec">
+<p><tt>draw_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, Segments::{Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws the outline of an oval.</p>
+
+<h3 class="function"><a name="draw_oval-4">draw_oval/4</a></h3>
+<div class="spec">
+<p><tt>draw_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, X3::{Width::float(), Height::float()}, Segments::<a href="#type-int">int()</a>) -&gt; ok</tt></p>
+</div><p>Draws the outline of an oval.</p>
+
+<h3 class="function"><a name="draw_oval-5">draw_oval/5</a></h3>
+<div class="spec">
+<p><tt>draw_oval(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float()) -&gt; ok</tt></p>
+</div><p>Draws the outline of an oval.</p>
+
+<h3 class="function"><a name="draw_oval-6">draw_oval/6</a></h3>
+<div class="spec">
+<p><tt>draw_oval(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float(), Segments::<a href="#type-int">int()</a>) -&gt; ok</tt></p>
+</div><p><p>Draws the outline of an oval.</p>
+ 
+  An oval is actually just a polygon, it's not a true cirular shape. The number
+  of segments states how many edges the circle will have, and if you have enough
+  then it looks like a smooth circle.
+ </p>
+
+<h3 class="function"><a name="draw_point-2">draw_point/2</a></h3>
+<div class="spec">
+<p><tt>draw_point(G, X2) -&gt; any()</tt></p>
+</div><p>Draws a single point at the position given.</p>
+
+<h3 class="function"><a name="draw_point-3">draw_point/3</a></h3>
+<div class="spec">
+<p><tt>draw_point(G, X, Y) -&gt; any()</tt></p>
+</div><p>Draws a single point at the position given.</p>
+
+<h3 class="function"><a name="draw_polygon-2">draw_polygon/2</a></h3>
+<div class="spec">
+<p><tt>draw_polygon(G::<a href="#type-graphics">graphics()</a>, Points::[{X::float(), Y::float()}]) -&gt; ok</tt></p>
+</div><p>Draws the outline of a closed polygon to the screen using the given list of points.</p>
+
+<h3 class="function"><a name="draw_polygon-3">draw_polygon/3</a></h3>
+<div class="spec">
+<p><tt>draw_polygon(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, Points::[{X::float(), Y::float()}]) -&gt; ok</tt></p>
+</div><p><p>Draws the outline of a closed polygon to the screen using the given list of points.</p>
+ 
+  <p>The point will be translated by the X and Y given. This allows the points to  
+be a shape around the 0,0 co-ordinate, and then you can translate this to be  
+drawn at X,Y.</p>
+ 
+  Points should be a list of X,Y tuples.
+ </p>
+
+<h3 class="function"><a name="draw_polygon-4">draw_polygon/4</a></h3>
+<div class="spec">
+<p><tt>draw_polygon(G::<a href="#type-graphics">graphics()</a>, Points::[{X::float(), Y::float()}], X::float(), Y::float()) -&gt; ok</tt></p>
+</div><p>Draws the outline of a closed polygon to the screen using the given list of points.</p>
+
+<h3 class="function"><a name="draw_rect-2">draw_rect/2</a></h3>
+<div class="spec">
+<p><tt>draw_rect(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float(), Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p><p>Draws the outline of a rectangle.  
+The location given is the top left corner of the rectangle, it's width and  
+height will extend to the right and down the screen.</p>
+ 
+  This version takes the co-ordinate and size as one big tuple.
+ </p>
+
+<h3 class="function"><a name="draw_rect-3">draw_rect/3</a></h3>
+<div class="spec">
+<p><tt>draw_rect(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, X3::{Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p><p>Draws the outline of a rectangle.  
+The location given is the top left corner of the rectangle, it's width and  
+height will extend to the right and down the screen.</p>
+ 
+  This takes the location and size and seperate tuples.
+ </p>
+
+<h3 class="function"><a name="draw_rect-5">draw_rect/5</a></h3>
+<div class="spec">
+<p><tt>draw_rect(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float()) -&gt; ok</tt></p>
+</div><p><p>Draws the outline of a rectangle.  
+The location given is the top left corner of the rectangle, it's width and  
+height will extend to the right and down the screen.</p>
+ 
+  This takes the co-ordinates and sizes as seperate values.
+ </p>
+
+<h3 class="function"><a name="draw_text-3">draw_text/3</a></h3>
+<div class="spec">
+<p><tt>draw_text(G::<a href="#type-graphics">graphics()</a>, Text::string(), XY::{X::number(), Y::number()}) -&gt; ok</tt></p>
+</div><p>Equivalent to <a href="#draw_text-5"><tt>draw_text(G, Text, X, Y, none)</tt></a>.</p>
+<p>Draws the text to the display using the default font.</p>
+
+<h3 class="function"><a name="draw_text-4">draw_text/4</a></h3>
+<div class="spec">
+<p><tt>draw_text(G::<a href="#type-graphics">graphics()</a>, Text::string(), X::{X::number(), Y::number()}, Font::<a href="#type-wxFont">wxFont()</a> | none) -&gt; ok</tt></p>
+</div><p>Equivalent to <a href="#draw_text-5"><tt>draw_text(G, Text, X, Y, Font)</tt></a>.</p>
+<p>Draws the text to the display using the Font given.</p>
+
+<h3 class="function"><a name="draw_text-5">draw_text/5</a></h3>
+<div class="spec">
+<p><tt>draw_text(G::<a href="#type-graphics">graphics()</a>, Text::string(), X::number(), Y::number(), Font::<a href="#type-wxFont">wxFont()</a> | none) -&gt; ok</tt></p>
+</div><p>Draws the given piece of text to the display.
+  The X and Y co-ordinates correspond to the top left corner of the text when
+  drawn. The Font is an optional wxFont to use when drawing. If ommitted then
+  the default Font is used.
+ </p>
+
+<h3 class="function"><a name="fill-1">fill/1</a></h3>
+<div class="spec">
+<p><tt>fill(G::<a href="#type-graphics">graphics()</a>) -&gt; ok</tt></p>
+</div><p>Cleares the given Graphics object with it's currently set draw colour.</p>
+
+<h3 class="function"><a name="fill_oval-2">fill_oval/2</a></h3>
+<div class="spec">
+<p><tt>fill_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float(), Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws a filled oval.</p>
+
+<h3 class="function"><a name="fill_oval-3">fill_oval/3</a></h3>
+<div class="spec">
+<p><tt>fill_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, Segments::{Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws a filled oval.</p>
+
+<h3 class="function"><a name="fill_oval-4">fill_oval/4</a></h3>
+<div class="spec">
+<p><tt>fill_oval(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, X3::{Width::float(), Height::float()}, Segments::<a href="#type-int">int()</a>) -&gt; ok</tt></p>
+</div><p>Draws a filled oval.</p>
+
+<h3 class="function"><a name="fill_oval-5">fill_oval/5</a></h3>
+<div class="spec">
+<p><tt>fill_oval(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float()) -&gt; ok</tt></p>
+</div><p>Draws a filled oval.</p>
+
+<h3 class="function"><a name="fill_oval-6">fill_oval/6</a></h3>
+<div class="spec">
+<p><tt>fill_oval(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float(), Segments::<a href="#type-int">int()</a>) -&gt; ok</tt></p>
+</div><p><p>Draws a filled oval.</p>
+ 
+  The x and y location is the top left-corner of the oval and it will stretch
+  to the right and down the screen. The number of segments states how many
+  edges the oval will have. The more, the more detailed it will look (but it
+  takes longer to render).
+ </p>
+
+<h3 class="function"><a name="fill_polygon-2">fill_polygon/2</a></h3>
+<div class="spec">
+<p><tt>fill_polygon(G::<a href="#type-graphics">graphics()</a>, Points::[{X::float(), Y::float()}]) -&gt; ok</tt></p>
+</div><p>Fills a closed polygon to the screen using the points given.</p>
+
+<h3 class="function"><a name="fill_polygon-3">fill_polygon/3</a></h3>
+<div class="spec">
+<p><tt>fill_polygon(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, Points::[{X::float(), Y::float()}]) -&gt; ok</tt></p>
+</div><p>Fills a closed polygon to the screen using the points given.
+  The location given will translate it to that location before being drawn.
+ </p>
+
+<h3 class="function"><a name="fill_polygon-4">fill_polygon/4</a></h3>
+<div class="spec">
+<p><tt>fill_polygon(G::<a href="#type-graphics">graphics()</a>, Points::[{X::float(), Y::float()}], X::float(), Y::float()) -&gt; ok</tt></p>
+</div><p>Fills a closed polygon to the screen using the points given.</p>
+
+<h3 class="function"><a name="fill_rect-2">fill_rect/2</a></h3>
+<div class="spec">
+<p><tt>fill_rect(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float(), Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws a filled rectangle.</p>
+
+<h3 class="function"><a name="fill_rect-3">fill_rect/3</a></h3>
+<div class="spec">
+<p><tt>fill_rect(G::<a href="#type-graphics">graphics()</a>, X2::{X::float(), Y::float()}, X3::{Width::float(), Height::float()}) -&gt; ok</tt></p>
+</div><p>Draws a filled rectangle.</p>
+
+<h3 class="function"><a name="fill_rect-5">fill_rect/5</a></h3>
+<div class="spec">
+<p><tt>fill_rect(G::<a href="#type-graphics">graphics()</a>, X::float(), Y::float(), Width::float(), Height::float()) -&gt; ok</tt></p>
+</div><p>Draws a filled rectangle.</p>
+
+<h3 class="function"><a name="get_clear_color-1">get_clear_color/1</a></h3>
+<div class="spec">
+<p><tt>get_clear_color(G) -&gt; any()</tt></p>
+</div><p><p>Returns the colour used for clearing the screen.</p>
+ 
+  get_clear_color( G::graphics() ) -&gt; { Red::float(), Green::float(), Blue::float(), Alpha::float() }</p>
+
+<h3 class="function"><a name="get_color-1">get_color/1</a></h3>
+<div class="spec">
+<p><tt>get_color(G) -&gt; any()</tt></p>
+</div><p><p>Returns the current colour being used for drawing.  
+Each of the colour components is a floating point value from 0.0 to 1.0.</p>
+ 
+  get_color( G::graphics() ) -&gt; { Red::float(), Green::float(), Blue::float(), Alpha::float() }</p>
+
+<h3 class="function"><a name="get_height-1">get_height/1</a></h3>
+<div class="spec">
+<p><tt>get_height(G::<a href="#type-graphics">graphics()</a>) -&gt; Height::float()</tt></p>
+</div><p>Returns the height of the drawing area inside of the window.</p>
+
+<h3 class="function"><a name="get_size-1">get_size/1</a></h3>
+<div class="spec">
+<p><tt>get_size(G::<a href="#type-graphics">graphics()</a>) -&gt; {Width::<a href="#type-int">int()</a>, Height::<a href="#type-int">int()</a>}</tt></p>
+</div><p>Returns the size of the drawing area in the window.
+  This is not the size of the whole window.
+ </p>
+
+<h3 class="function"><a name="get_width-1">get_width/1</a></h3>
+<div class="spec">
+<p><tt>get_width(G::<a href="#type-graphics">graphics()</a>) -&gt; Width::float()</tt></p>
+</div><p>Returns the width of the drawing area inside of the window.</p>
+
+<h3 class="function"><a name="new-5">new/5</a></h3>
+<div class="spec">
+<p><tt>new(DisplayPID::pid(), Size, Title::string(), OnCloseFun::() -&gt; term(), ControlsHandler::<a href="#type-controls_handler">controls_handler()</a>) -&gt; Graphics::pid()</tt>
+<ul class="definitions"><li><tt>Size = {Width::<a href="#type-int">int()</a>, Height::<a href="#type-int">int()</a>}</tt></li>
+</ul></p>
+</div><p><p>Internal API function for creating a graphics object.  
+This should never be needed to be called by the user.</p>
+ 
+  <p>The graphics returned is a process id to the data server containing the true  
+display and opengl context.</p>
+ 
+  The size is the size of the canvas inside of the display, not the size of the
+  display (the display will be slightly bigger). The title will appear in the
+  top of the display and the ControlsHandler is for storing all of the controls
+  inputs.
+ </p>
+
+<h3 class="function"><a name="set_clear_color-2">set_clear_color/2</a></h3>
+<div class="spec">
+<p><tt>set_clear_color(G::<a href="#type-graphics">graphics()</a>, X2::{Red::float(), Green::float(), Blue::float()}) -&gt; ok</tt></p>
+</div><p>Sets the clear color for this graphics object.
+  The alpha value will be left unchanged after this call.
+ </p>
+
+<h3 class="function"><a name="set_clear_color-4">set_clear_color/4</a></h3>
+<div class="spec">
+<p><tt>set_clear_color(G::<a href="#type-graphics">graphics()</a>, Red::float(), Green::float(), Blue::float()) -&gt; ok</tt></p>
+</div><p>Sets the clear color for this graphics object.
+  The alpha value will be left unchanged after this call.
+ </p>
+
+<h3 class="function"><a name="set_clear_color-5">set_clear_color/5</a></h3>
+<div class="spec">
+<p><tt>set_clear_color(G::<a href="#type-graphics">graphics()</a>, Red::float(), Green::float(), Blue::float(), Alpha::float) -&gt; ok</tt></p>
+</div><p><p>Sets the clear color for this graphics object.  
+This is the color that will be used when the Graphics object is cleared.</p>
+ 
+  <p>All colour components (the Red, Green, Blue and alpha) must be a float from  
+0.0 to 1.0 (inclusive).</p>
+ 
+  Note that this is for the clear command, so as long as that is unsupported
+  this method is pointless.
+ </p>
+
+<h3 class="function"><a name="set_color-2">set_color/2</a></h3>
+<div class="spec">
+<p><tt>set_color(G::<a href="#type-graphics">graphics()</a>, X2::{Red::float(), Green::float(), Blue::float()}) -&gt; ok</tt></p>
+</div><p>Sets the color to use when drawing.</p>
+
+<h3 class="function"><a name="set_color-4">set_color/4</a></h3>
+<div class="spec">
+<p><tt>set_color(G::<a href="#type-graphics">graphics()</a>, Red::float(), Green::float(), Blue::float()) -&gt; ok</tt></p>
+</div><p>Sets the color to use when drawing.
+  The alpha component is left unchanged with this call.
+ </p>
+
+<h3 class="function"><a name="set_color-5">set_color/5</a></h3>
+<div class="spec">
+<p><tt>set_color(G::<a href="#type-graphics">graphics()</a>, Red::float(), Green::float(), Blue::float(), Alpha::float) -&gt; ok</tt></p>
+</div><p><p>Sets the color to use when drawing.</p>
+ 
+  All colour components (the Red, Green and Blue) must be a float from 0.0 to
+  1.0 (inclusive).
+ </p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

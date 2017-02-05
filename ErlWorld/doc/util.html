@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module util</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module util</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+   The Util module is where the utility functions are placed.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2>
+   The Util module is where the utility functions are placed.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#for-2">for/2</a></td><td>The for loop applies a function to each value in the loop in turn, until the value reaches max.</td></tr>
+<tr><td valign="top"><a href="#for-3">for/3</a></td><td>This for loop will iterate from 0 to max, but increments the value in the iterator by Step amount each time.</td></tr>
+<tr><td valign="top"><a href="#for-4">for/4</a></td><td>This for loop will iterate from min to max where min is inclusive and max is exclusive.</td></tr>
+<tr><td valign="top"><a href="#foreach_count-2">foreach_count/2</a></td><td>This is the same as the for each function in the lists module, but it returns the number of elements it iterated over.</td></tr>
+<tr><td valign="top"><a href="#get_time-0">get_time/0</a></td><td>Returns the current time in milliseconds.</td></tr>
+<tr><td valign="top"><a href="#get_time_micros-0">get_time_micros/0</a></td><td>Returns the current time in microseconds.</td></tr>
+<tr><td valign="top"><a href="#new_gb_tree-0">new_gb_tree/0</a></td><td>This is a helper function for creating a new gb_tree.</td></tr>
+<tr><td valign="top"><a href="#remove_element-2">remove_element/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#to_degrees-1">to_degrees/1</a></td><td>Converts the given degrees into radians.</td></tr>
+<tr><td valign="top"><a href="#to_radians-1">to_radians/1</a></td><td>Converts the given value from radians to degrees.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="for-2">for/2</a></h3>
+<div class="spec">
+<p><tt>for(Max::integer(), Func::(I::integer()) -&gt; term()) -&gt; Count::integer()</tt></p>
+</div><p>The for loop applies a function to each value in the loop in turn, until the value reaches max.
+  This defaults the start of the loop to 0 and steps by 1 between each value.
+ </p>
+
+<h3 class="function"><a name="for-3">for/3</a></h3>
+<div class="spec">
+<p><tt>for(Max::integer(), Func::(I::integer()) -&gt; term(), Step::integer()) -&gt; Count::integer()</tt></p>
+</div><p>This for loop will iterate from 0 to max, but increments the value in the iterator by Step amount each time.</p>
+
+<h3 class="function"><a name="for-4">for/4</a></h3>
+<div class="spec">
+<p><tt>for(Min::integer(), Max::integer(), Func::(I::integer()) -&gt; term(), Step::integer()) -&gt; integer()</tt></p>
+</div><p>This for loop will iterate from min to max where min is inclusive and max is exclusive.
+  It will increment by the value in Step for each iteration.
+ </p>
+
+<h3 class="function"><a name="foreach_count-2">foreach_count/2</a></h3>
+<div class="spec">
+<p><tt>foreach_count(Func::(L::term()) -&gt; term(), Ls::[Ls]) -&gt; Count::integer()</tt></p>
+</div><p>This is the same as the for each function in the lists module, but it returns the number of elements it iterated over.
+  The result of the function is ignored.
+ </p>
+
+<h3 class="function"><a name="get_time-0">get_time/0</a></h3>
+<div class="spec">
+<p><tt>get_time() -&gt; Time::number()</tt></p>
+</div><p>Returns the current time in milliseconds.</p>
+
+<h3 class="function"><a name="get_time_micros-0">get_time_micros/0</a></h3>
+<div class="spec">
+<p><tt>get_time_micros() -&gt; Time::number()</tt></p>
+</div><p>Returns the current time in microseconds.
+  Each call to this will return a unique value.</p>
+
+<h3 class="function"><a name="new_gb_tree-0">new_gb_tree/0</a></h3>
+<div class="spec">
+<p><tt>new_gb_tree() -&gt; {0, nil}</tt></p>
+</div><p>This is a helper function for creating a new gb_tree.</p>
+
+<h3 class="function"><a name="remove_element-2">remove_element/2</a></h3>
+<div class="spec">
+<p><tt>remove_element(A, Bs) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="to_degrees-1">to_degrees/1</a></h3>
+<div class="spec">
+<p><tt>to_degrees(Radians::float()) -&gt; Degrees::float()</tt></p>
+</div><p>Converts the given degrees into radians.</p>
+
+<h3 class="function"><a name="to_radians-1">to_radians/1</a></h3>
+<div class="spec">
+<p><tt>to_radians(Degrees::float()) -&gt; Radians::float()</tt></p>
+</div><p>Converts the given value from radians to degrees.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

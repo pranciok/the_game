@@ -3,13 +3,13 @@
 
 -include("settings.hrl").
 
--export([start_link/0, stop/0, ping/1, mast/2, add_clients_total/1]).
+-export([start_link/1, stop/0, ping/1, mast/2, add_clients_total/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
 %%% Client API
-start_link() ->
-  gen_server:start_link(?MODULE, [], []).
+start_link(AdmiralMode) ->
+  gen_server:start_link(?MODULE, [AdmiralMode], []).
 
 stop() ->
   gen_server:call(admiral, terminate).
@@ -24,26 +24,29 @@ add_clients_total(No) ->
   gen_server:cast(admiral, {add_clients, No}).
 
 %%% Server functions
-init([]) ->
+init([AdmiralMode]) ->
   ets:new(disputes,[set, named_table]),
   register(admiral, self()),
-  {ok, {0,[]}}.
+  {ok, {0,[], AdmiralMode}}.
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.
 
-handle_cast({add_clients, No}, {NoClients, Masts}) ->
-  {noreply, {NoClients + No, Masts}};
+handle_cast({add_clients, No}, {NoClients, Masts, AdmiralMode}) ->
+  {noreply, {NoClients + No, Masts, AdmiralMode}};
 
-handle_cast({mast, Node, Position}, {NoClients, Masts}) ->
+handle_cast({mast, Node, Position}, {NoClients, Masts, AdmiralMode}) ->
   Test = proplists:is_defined(Node, Masts),
   M = case Test of
         true -> proplists:delete(Node, Masts);
         _ -> Masts
       end,
-  {noreply, {NoClients, [{Node, Position} | M]}};
+  {noreply, {NoClients, [{Node, Position} | M], AdmiralMode}};
 
-handle_cast({ping, {{_FromWard, FromNode}, {ToWard, ToNode}}}, {NoOfClientsTotal, Masts}) ->
+handle_cast({ping, _Message}, {NoOfPlayers, Masts, admiral_off}) ->
+  {noreply, {NoOfPlayers, Masts, admiral_off}};
+
+handle_cast({ping, {{_FromWard, FromNode}, {ToWard, ToNode}}}, {NoOfPlayers, Masts, AdmiralMode}) ->
   Result = ets:lookup(disputes, {ToWard, FromNode}),
   case Result of
     [] -> ets:insert(disputes, {{ToWard, FromNode}, 1, erlang:timestamp(), ?PING_TRESHOLD});
@@ -54,15 +57,15 @@ handle_cast({ping, {{_FromWard, FromNode}, {ToWard, ToNode}}}, {NoOfClientsTotal
         _ ->
           NewTreshold = Treshold - (1/Diff),
           case NewTreshold =< 0 of
-            true -> settle_dispute(ToWard, FromNode, ToNode, NoOfClientsTotal, Masts);
+            true -> settle_dispute(ToWard, FromNode, ToNode, NoOfPlayers, Masts, AdmiralMode);
             _ -> ets:insert(disputes, {{ToWard, FromNode}, PingNo + 1, erlang:timestamp(), NewTreshold})
           end
       end
   end,
-  {noreply, {NoOfClientsTotal, Masts}}.
+  {noreply, {NoOfPlayers, Masts, AdmiralMode}}.
 
 handle_info(Msg, Cats) ->
-    io:format("Unexpected message: ~p~n",[Msg]),
+    io:format("Admiral unexpected message: ~p~n",[Msg]),
     {noreply, Cats}.
 
 terminate(_, _) ->
@@ -71,7 +74,7 @@ terminate(_, _) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-settle_dispute(WardId, CallerNode, OwnerNode, ClientsTotal, Masts) ->
+settle_dispute(WardId, CallerNode, OwnerNode, ClientsTotal, Masts, AdmiralMode) ->
   CallerMast = proplists:lookup(CallerNode, Masts),
   OwnerMast = proplists:lookup(OwnerNode, Masts),
 
@@ -82,7 +85,12 @@ settle_dispute(WardId, CallerNode, OwnerNode, ClientsTotal, Masts) ->
   WardWeight = DisputedWard#wards.weight,
   CallerNodeLoad = calculate_load(CallerNode, ClientsTotal),
   OwnerNodeLoad = calculate_load(OwnerNode, ClientsTotal),
-  Resolution = DistanceDifference + NoOfPings - WardWeight - CallerNodeLoad + OwnerNodeLoad,
+  Resolution = case AdmiralMode of
+                  mast_off ->
+                    NoOfPings - WardWeight - CallerNodeLoad + OwnerNodeLoad;
+                  _ ->
+                    DistanceDifference + NoOfPings - WardWeight - CallerNodeLoad + OwnerNodeLoad
+                end,
   case Resolution > 0 of
     true ->
       rpc:call(CallerNode, ward, execute_handover, [DisputedWard]),

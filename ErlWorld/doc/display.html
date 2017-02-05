@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module display</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module display</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+This is essentially a window that the framework will use for drawing and   
+checking for controls.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+This is essentially a window that the framework will use for drawing and   
+checking for controls.</p>
+  
+   You should create only one of these and then use it with the mainloop.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#get_controls-1">get_controls/1</a></td><td>Returns a snapshot of the current state of the controls input.</td></tr>
+<tr><td valign="top"><a href="#get_height-1">get_height/1</a></td><td>Returns the height of the graphics area of the Display.</td></tr>
+<tr><td valign="top"><a href="#get_size-1">get_size/1</a></td><td>Return a tuple in the format {Width, Height} depicting the size of the canvas.</td></tr>
+<tr><td valign="top"><a href="#get_width-1">get_width/1</a></td><td>Returns the width of the graphics area of the Display.</td></tr>
+<tr><td valign="top"><a href="#new-2">new/2</a></td><td>This is exactly the same as the other new function, however this will use the default title.</td></tr>
+<tr><td valign="top"><a href="#new-3">new/3</a></td><td>Creates a new Display of the given size and with the given title.</td></tr>
+<tr><td valign="top"><a href="#new-4">new/4</a></td><td>This new creates a new Display of the given Width and Height with the given Title.</td></tr>
+<tr><td valign="top"><a href="#paint_actor-2">paint_actor/2</a></td><td>This paints the given Actor to this Display.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="get_controls-1">get_controls/1</a></h3>
+<div class="spec">
+<p><tt>get_controls(Display::<a href="#type-display">display()</a>) -&gt; Controls::<a href="#type-controls">controls()</a></tt></p>
+</div><p>Returns a snapshot of the current state of the controls input.</p>
+
+<h3 class="function"><a name="get_height-1">get_height/1</a></h3>
+<div class="spec">
+<p><tt>get_height(Display::<a href="#type-display">display()</a>) -&gt; Height::integer()</tt></p>
+</div><p>Returns the height of the graphics area of the Display.</p>
+
+<h3 class="function"><a name="get_size-1">get_size/1</a></h3>
+<div class="spec">
+<p><tt>get_size(Display::<a href="#type-display">display()</a>) -&gt; {Width::integer(), Height::integer()}</tt></p>
+</div><p>Return a tuple in the format {Width, Height} depicting the size of the canvas.</p>
+
+<h3 class="function"><a name="get_width-1">get_width/1</a></h3>
+<div class="spec">
+<p><tt>get_width(Display::<a href="#type-display">display()</a>) -&gt; Width::integer()</tt></p>
+</div><p>Returns the width of the graphics area of the Display.</p>
+
+<h3 class="function"><a name="new-2">new/2</a></h3>
+<div class="spec">
+<p><tt>new(Width::integer(), Height::integer()) -&gt; Display::<a href="#type-display">display()</a></tt></p>
+</div><p>This is exactly the same as the other new function, however this will use the default title.</p>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(Width::integer(), Height::integer(), Title::string()) -&gt; Display::<a href="#type-display">display()</a></tt></p>
+</div><p><p>Creates a new Display of the given size and with the given title.  
+Note that the width and height are the size of the graphics area inside of  
+the window, not the size of the window itself.</p>
+ 
+  By default ErlWorld will shutdown the erlang runtime when this display is
+  closed.
+ </p>
+
+<h3 class="function"><a name="new-4">new/4</a></h3>
+<div class="spec">
+<p><tt>new(Width::integer(), Height::integer(), Title::string(), OnCloseFun::() -&gt; term()) -&gt; Display::<a href="#type-display">display()</a></tt></p>
+</div><p>This new creates a new Display of the given Width and Height with the given Title.
+  It will also run the given OnCloseFun when the display is closed. The result
+  of this fun is ignored and it should have no parameters.
+ </p>
+
+<h3 class="function"><a name="paint_actor-2">paint_actor/2</a></h3>
+<div class="spec">
+<p><tt>paint_actor(Display::<a href="#type-display">display()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; ok</tt></p>
+</div><p><p>This paints the given Actor to this Display.  
+It will block until painting has finished.</p>
+ 
+  Typically you don't ever need to call this. It is called for you by the
+  mainloop.
+ </p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

@@ -6,13 +6,15 @@
 -define(TITLE , "Game Simulator").
 
 -export([ start/0 ]).
+-include("settings.hrl").
 
 start() ->
     Display = display:new( ?WIDTH, ?HEIGHT, ?TITLE ),
     MainLoop = mainloop:new( Display ),
     CircleImg = image:new( Display, "circle.png" ),
     World = new_world(CircleImg),
-    mainloop:run( MainLoop, World ).
+    mainloop:run( MainLoop, World ),
+    MainLoop.
 
 new_world(CircleImg) ->
     World = world:new(
@@ -45,11 +47,11 @@ add_player( _World, _CircleImg, false ) -> ok;
 add_player( World, CircleImg,  Pid ) ->
     case is_pid(Pid) of
       true ->
-        Result = ets:lookup(players, Pid),
+        Result = mnesia:dirty_read(players, Pid),
         Location = case Result of
-                      [] -> {0, 0};
-                      [{_Pid, L, _C}] -> L
-                   end,
+                    [] -> {0, 0};
+                    [Record] -> Record#players.xy
+                 end,
         Circle = new_player( CircleImg, Location, Pid ),
         world:add_actor( World, Circle );
       _ -> ok
@@ -65,24 +67,25 @@ new_player(CircleImg, XY, Pid) ->
 
     Act = fun( AS, _Parent ) ->
         Pid = actor_state:get(AS, pid),
-        Result = ets:lookup(players, Pid),
+        Result = mnesia:dirty_read(players, Pid),
         {X, Y} = case Result of
                     [] -> {0, 0};
-                    [{_Pid, {XTemp, YTemp}, _Colour}] ->
-                      {XTemp, YTemp}
+                    [R] -> R#players.xy
                  end,
         actor_state:set_xy(AS, X, Y)
     end,
 
     Paint = fun( AS, G ) ->
       Pid = actor_state:get(AS, pid),
-      Result = ets:lookup(players, Pid),
+
+      Result = mnesia:dirty_read(players, Pid),
       Color = case Result of
                   [] -> {0, 0};
-                  [{_Pid, _XY, C}] -> C
+                  [R] -> R#players.color
                end,
-        graphics:set_color( G, Color ),
-        graphics:draw_image( G, CircleImg, actor_state:get_xy(AS), actor_state:get_size(AS), true )
+
+      graphics:set_color( G, Color ),
+      graphics:draw_image( G, CircleImg, actor_state:get_xy(AS), actor_state:get_size(AS), true )
     end,
 
     actor:new( Act, Paint, State ).

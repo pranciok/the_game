@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module controls_handler</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module controls_handler</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+   This is a data collection for storing the current state of the controls.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2>
+   This is a data collection for storing the current state of the controls. You
+   can give it mouse locations and the press and release of mouse buttons and
+   keys. You can also grab the current state of the controls using the
+   get_controls function.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#get_controls-1">get_controls/1</a></td><td>Requests a snapshot current state of the controls from this Controls Handler.</td></tr>
+<tr><td valign="top"><a href="#new-0">new/0</a></td><td>Creates a new process that stores controls changes.</td></tr>
+<tr><td valign="top"><a href="#set_key_char-2">set_key_char/2</a></td><td>Sets the current key character we are currently looking at.</td></tr>
+<tr><td valign="top"><a href="#set_key_down-2">set_key_down/2</a></td><td>Sets the key to be down for the given key code.</td></tr>
+<tr><td valign="top"><a href="#set_key_up-2">set_key_up/2</a></td><td>Sets the key to be up for the given key code.</td></tr>
+<tr><td valign="top"><a href="#set_mouse_down-2">set_mouse_down/2</a></td><td>Sets the button to be down for the value given.</td></tr>
+<tr><td valign="top"><a href="#set_mouse_location-2">set_mouse_location/2</a></td><td>Sets the mouse location stored in this ControlsHandler to the location given.</td></tr>
+<tr><td valign="top"><a href="#set_mouse_up-2">set_mouse_up/2</a></td><td>Sets the button to be up for the mouse button given.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="get_controls-1">get_controls/1</a></h3>
+<div class="spec">
+<p><tt>get_controls(CHandler::<a href="#type-controls_handler">controls_handler()</a>) -&gt; Controls::<a href="#type-controls">controls()</a></tt></p>
+</div><p>Requests a snapshot current state of the controls from this Controls Handler.</p>
+
+<h3 class="function"><a name="new-0">new/0</a></h3>
+<div class="spec">
+<p><tt>new() -&gt; ControlsHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Creates a new process that stores controls changes.
+  This can then be pinged for a snapshot of the controls.
+ </p>
+
+<h3 class="function"><a name="set_key_char-2">set_key_char/2</a></h3>
+<div class="spec">
+<p><tt>set_key_char(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Key::integer()) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the current key character we are currently looking at.
+  Any keypresses that come in before or after this character which are not
+  mapped will be presumed to map against this char.
+ </p>
+
+<h3 class="function"><a name="set_key_down-2">set_key_down/2</a></h3>
+<div class="spec">
+<p><tt>set_key_down(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Key::integer()) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the key to be down for the given key code.</p>
+
+<h3 class="function"><a name="set_key_up-2">set_key_up/2</a></h3>
+<div class="spec">
+<p><tt>set_key_up(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Key::integer()) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the key to be up for the given key code.
+  Any characters mapped against the given key will no longer be mapped as being down.
+ </p>
+
+<h3 class="function"><a name="set_mouse_down-2">set_mouse_down/2</a></h3>
+<div class="spec">
+<p><tt>set_mouse_down(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Mouse::left | middle | right) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the button to be down for the value given.
+  The value given should be one of the mouse button constants.
+ </p>
+
+<h3 class="function"><a name="set_mouse_location-2">set_mouse_location/2</a></h3>
+<div class="spec">
+<p><tt>set_mouse_location(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Location::{X::<a href="#type-interger">interger()</a>, Y::integer}) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the mouse location stored in this ControlsHandler to the location given.
+ </p>
+
+<h3 class="function"><a name="set_mouse_up-2">set_mouse_up/2</a></h3>
+<div class="spec">
+<p><tt>set_mouse_up(CHandler::<a href="#type-controls_handler">controls_handler()</a>, Mouse::left | middle | right) -&gt; NewCHandler::<a href="#type-controls_handler">controls_handler()</a></tt></p>
+</div><p>Sets the button to be up for the mouse button given.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

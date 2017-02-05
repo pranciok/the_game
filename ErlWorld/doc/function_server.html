@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module function_server</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module function_server</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+This is an extension on the data_server.
+
+<p><b>Authors:</b> Joseph Lenton, Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+This is an extension on the data_server. It differes in that functions can   
+be registered onto this server allowing them to be automatically looked up   
+as new messages arrive.</p>
+  
+   <p>Two custom functions can be supplied on creation for instances when no   
+registered message can be found. By default an error is raised when no   
+message is retrieved.</p>
+  
+   <p>The no_message and no_request function follow the same signature as   
+on_message and on_request of the data_server:       
+fun( Message, Parameters, State )</p>
+  
+   All of the registered on_message and on_request functions must have the
+   signatures:
+       on_message( Parameters, State ) -&gt; State
+           Deals with the message and is passed in the server state. It returns
+           the servers new state when it ends.
+       on_request( Parameters, State ) -&gt; { State, ReturnVal }
+           Same as OnMessage, only this needs to return a tuple containing the
+           servers new state and the value to return to the initial sender.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-0">new/0</a></td><td>Creates a new server with 'ok' as it's initial state.</td></tr>
+<tr><td valign="top"><a href="#new-1">new/1</a></td><td>Creates a new state that holds the given state.</td></tr>
+<tr><td valign="top"><a href="#new-3">new/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new-5">new/5</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new_spawn-3">new_spawn/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new_spawn-5">new_spawn/5</a></td><td></td></tr>
+<tr><td valign="top"><a href="#receive_request-1">receive_request/1</a></td><td>Equivalent to <a href="data_server.html#receive_request-1"><tt>data_server:receive_request(Token)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#receive_request-2">receive_request/2</a></td><td>Equivalent to <a href="data_server.html#receive_request-2"><tt>data_server:receive_request(TimeStamp, TimeOut)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#receive_timeout-3">receive_timeout/3</a></td><td>Equivalent to <a href="data_server.html#receive_timeout-3"><tt>data_server:receive_timeout(Server, Message, Timeout)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#receive_timeout-4">receive_timeout/4</a></td><td>Equivalent to <a href="data_server.html#receive_timeout-4"><tt>data_server:receive_timeout(Server, Message, Params,
+			    Timeout)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#request-2">request/2</a></td><td>Equivalent to <a href="data_server.html#request-2"><tt>data_server:request(Server, Message)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#request-3">request/3</a></td><td>Equivalent to <a href="data_server.html#request-3"><tt>data_server:request(Server, Message, Params)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#send-2">send/2</a></td><td>Equivalent to <a href="data_server.html#send-2"><tt>data_server:send(Server, Message)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#send-3">send/3</a></td><td>Equivalent to <a href="data_server.html#send-3"><tt>data_server:send(Server, Message, Params)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#send_request-2">send_request/2</a></td><td>Equivalent to <a href="data_server.html#send_request-2"><tt>data_server:send_request(Server, Message)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#send_request-3">send_request/3</a></td><td>Equivalent to <a href="data_server.html#send_request-3"><tt>data_server:send_request(Server, Message, Params)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#set_message_func-3">set_message_func/3</a></td><td>Registeres the given function onto the given server object.</td></tr>
+<tr><td valign="top"><a href="#set_message_funcs-2">set_message_funcs/2</a></td><td>This registers a whole list of functions to this server.</td></tr>
+<tr><td valign="top"><a href="#set_request_func-3">set_request_func/3</a></td><td>Registeres the given function onto the given server object.</td></tr>
+<tr><td valign="top"><a href="#set_request_funcs-2">set_request_funcs/2</a></td><td>Same as set_message_funcs only this is for the on_request functions.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="new-0">new/0</a></h3>
+<div class="spec">
+<p><tt>new() -&gt; PID</tt></p>
+</div><p>Creates a new server with 'ok' as it's initial state.
+ </p>
+
+<h3 class="function"><a name="new-1">new/1</a></h3>
+<div class="spec">
+<p><tt>new(StartState::State) -&gt; PID</tt></p>
+</div><p>Creates a new state that holds the given state.
+  This state is passed into any of it's registered functions for when they are
+  called.
+ </p>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(StartState, MessageFuncs, RequestFuncs) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="new-5">new/5</a></h3>
+<div class="spec">
+<p><tt>new(StartState, MessageFuncs, RequestFuncs, NoMessage, NoRequest) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="new_spawn-3">new_spawn/3</a></h3>
+<div class="spec">
+<p><tt>new_spawn(StartState, MessageFuncs, RequestFuncs) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="new_spawn-5">new_spawn/5</a></h3>
+<div class="spec">
+<p><tt>new_spawn(StartState, MessageFuncs, RequestFuncs, NoMessage, NoRequest) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="receive_request-1">receive_request/1</a></h3>
+<div class="spec">
+<p><tt>receive_request(Token) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#receive_request-1"><tt>data_server:receive_request(Token)</tt></a>.</p>
+
+
+<h3 class="function"><a name="receive_request-2">receive_request/2</a></h3>
+<div class="spec">
+<p><tt>receive_request(TimeStamp, TimeOut) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#receive_request-2"><tt>data_server:receive_request(TimeStamp, TimeOut)</tt></a>.</p>
+
+
+<h3 class="function"><a name="receive_timeout-3">receive_timeout/3</a></h3>
+<div class="spec">
+<p><tt>receive_timeout(Server, Message, Timeout) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#receive_timeout-3"><tt>data_server:receive_timeout(Server, Message, Timeout)</tt></a>.</p>
+
+
+<h3 class="function"><a name="receive_timeout-4">receive_timeout/4</a></h3>
+<div class="spec">
+<p><tt>receive_timeout(Server, Message, Params, Timeout) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#receive_timeout-4"><tt>data_server:receive_timeout(Server, Message, Params,
+			    Timeout)</tt></a>.</p>
+
+
+<h3 class="function"><a name="request-2">request/2</a></h3>
+<div class="spec">
+<p><tt>request(Server, Message) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#request-2"><tt>data_server:request(Server, Message)</tt></a>.</p>
+
+
+<h3 class="function"><a name="request-3">request/3</a></h3>
+<div class="spec">
+<p><tt>request(Server, Message, Params) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#request-3"><tt>data_server:request(Server, Message, Params)</tt></a>.</p>
+
+
+<h3 class="function"><a name="send-2">send/2</a></h3>
+<div class="spec">
+<p><tt>send(Server, Message) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#send-2"><tt>data_server:send(Server, Message)</tt></a>.</p>
+
+
+<h3 class="function"><a name="send-3">send/3</a></h3>
+<div class="spec">
+<p><tt>send(Server, Message, Params) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#send-3"><tt>data_server:send(Server, Message, Params)</tt></a>.</p>
+
+
+<h3 class="function"><a name="send_request-2">send_request/2</a></h3>
+<div class="spec">
+<p><tt>send_request(Server, Message) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#send_request-2"><tt>data_server:send_request(Server, Message)</tt></a>.</p>
+
+
+<h3 class="function"><a name="send_request-3">send_request/3</a></h3>
+<div class="spec">
+<p><tt>send_request(Server, Message, Params) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="data_server.html#send_request-3"><tt>data_server:send_request(Server, Message, Params)</tt></a>.</p>
+
+
+<h3 class="function"><a name="set_message_func-3">set_message_func/3</a></h3>
+<div class="spec">
+<p><tt>set_message_func(Server::pid, Message::atom(), Func::Fun) -&gt; ok</tt>
+<ul class="definitions"><li><tt>Fun = (Params::term(), State::term()) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Registeres the given function onto the given server object.</p>
+
+<h3 class="function"><a name="set_message_funcs-2">set_message_funcs/2</a></h3>
+<div class="spec">
+<p><tt>set_message_funcs(Server::pid, Fun::[{Message::atom(), Fun}]) -&gt; ok</tt>
+<ul class="definitions"><li><tt>Fun = (Params::term(), State::term()) -&gt; term()</tt></li>
+</ul></p>
+</div><p>This registers a whole list of functions to this server.
+  Each element in the list should be in the format: {Message, Func}.
+ </p>
+
+<h3 class="function"><a name="set_request_func-3">set_request_func/3</a></h3>
+<div class="spec">
+<p><tt>set_request_func(Server::pid, Message::atom(), Func::Fun) -&gt; ok</tt>
+<ul class="definitions"><li><tt>Fun = (Params::term(), State::term()) -&gt; {term(), term()}</tt></li>
+</ul></p>
+</div><p>Registeres the given function onto the given server object.</p>
+
+<h3 class="function"><a name="set_request_funcs-2">set_request_funcs/2</a></h3>
+<div class="spec">
+<p><tt>set_request_funcs(Server::pid, Fun::[{Message, Fun}]) -&gt; ok</tt>
+<ul class="definitions"><li><tt>Fun = (Params::term(), State::term()) -&gt; {term(), term()}</tt></li>
+</ul></p>
+</div><p>Same as set_message_funcs only this is for the on_request functions.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

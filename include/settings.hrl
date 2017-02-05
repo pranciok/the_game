@@ -25,6 +25,7 @@
 
 
 -record(wards, {id, pid, node, weight}).
+-record(players, {pid, xy, color}).
 
 %% usefull globals %%
 -define(MAX_X, 49500).

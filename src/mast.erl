@@ -21,19 +21,22 @@ loop() ->
           Pid ! {mast, Mast},
           loop();
     stop -> ok
-  after 5000 -> loop()
+  after 1000 -> loop()
   end.
 
 calculate_mast_position() ->
   Match = [{#wards{id = '$1',pid = '_', node = node(), weight = '$2'},
             [],
             [{{'$1','$2'}}]}],
-  MyWards = mnesia:dirty_select(wards, Match),
-
-  {TotalX, TotalY, TotalWeight} = get_totals(MyWards, {0, 0, 0}),
-  case TotalWeight of
-    0 -> {0, 0};
-    _-> {TotalX/TotalWeight, TotalY/TotalWeight}
+  case Match of
+    [] -> {0, 0};
+    _ ->
+      MyWards = mnesia:dirty_select(wards, Match),
+      {TotalX, TotalY, TotalWeight} = get_totals(MyWards, {0, 0, 0}),
+      case TotalWeight of
+        0 -> {0, 0};
+        _-> {TotalX/TotalWeight, TotalY/TotalWeight}
+      end
   end.
 
 get_totals([], Result) -> Result;

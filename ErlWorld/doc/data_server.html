@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module data_server</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module data_server</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+The Data Server is a special type of server that holds data whilst offering   
+call back functionality on messages and requests.
+
+<p><b>Authors:</b> Joseph Lenton, Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+The Data Server is a special type of server that holds data whilst offering   
+call back functionality on messages and requests. The result of the callback   
+depicts the new data of the server.</p>
+  
+   When created two functions are required:
+       on_message( Message, Parameters, State ) -&gt; State
+           Deals with the message and is passed in the server state. It returns
+           the servers new state when it ends.
+       on_request( Message, Parameters, State ) -&gt; { State, ReturnVal }
+           Same as OnMessage, only this needs to return a tuple containing the
+           servers new state and the value to return to the initial sender.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-3">new/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new-4">new/4</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new_in_pid-3">new_in_pid/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#new_in_pid-4">new_in_pid/4</a></td><td></td></tr>
+<tr><td valign="top"><a href="#receive_request-1">receive_request/1</a></td><td>Receives the return value from a previous sent request to a data server.</td></tr>
+<tr><td valign="top"><a href="#receive_request-2">receive_request/2</a></td><td>Same as the other collect_request function only this has a time out value.</td></tr>
+<tr><td valign="top"><a href="#request-2">request/2</a></td><td>Sends the message to the server and then returns the value returned from the request.</td></tr>
+<tr><td valign="top"><a href="#request-3">request/3</a></td><td>Sends the message to the server and then returns the value returned from the request.</td></tr>
+<tr><td valign="top"><a href="#request_timeout-3">request_timeout/3</a></td><td>A request reply, but with a timeout value.</td></tr>
+<tr><td valign="top"><a href="#request_timeout-4">request_timeout/4</a></td><td>The same as the other request_timeout function, only this also allows a request parameter.</td></tr>
+<tr><td valign="top"><a href="#send-2">send/2</a></td><td>Sends the message to the given data_server.</td></tr>
+<tr><td valign="top"><a href="#send-3">send/3</a></td><td>Sends the given message, with the given parameters, to the given server.</td></tr>
+<tr><td valign="top"><a href="#send_request-2">send_request/2</a></td><td>This is the same as request, except that it does not block and wait for a reply.</td></tr>
+<tr><td valign="top"><a href="#send_request-3">send_request/3</a></td><td>A request is sent but the function returns directly.</td></tr>
+<tr><td valign="top"><a href="#set_message_forward-2">set_message_forward/2</a></td><td>Sets where to forward messages on to.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(OnMessage, OnRequest, StartState::term()) -&gt; PID::pid()</tt>
+<ul class="definitions"><li><tt>OnMessage = (Params::term(), State::term()) -&gt; term()</tt></li>
+<li><tt>OnRequest = (Params::term(), State::term()) -&gt; {term(), term()}</tt></li>
+</ul></p>
+</div>
+
+<h3 class="function"><a name="new-4">new/4</a></h3>
+<div class="spec">
+<p><tt>new(OnMessage, OnRequest, StartState::term(), SpawnLink::<a href="#type-boolean">boolean()</a>) -&gt; PID::pid()</tt>
+<ul class="definitions"><li><tt>OnMessage = (Params::term(), State::term()) -&gt; term()</tt></li>
+<li><tt>OnRequest = (Params::term(), State::term()) -&gt; {term(), term()}</tt></li>
+</ul></p>
+</div>
+
+<h3 class="function"><a name="new_in_pid-3">new_in_pid/3</a></h3>
+<div class="spec">
+<p><tt>new_in_pid(OnMessage, OnRequest, StateFunc) -&gt; PID::pid()</tt>
+<ul class="definitions"><li><tt>OnMessage = (Params::term(), State::term()) -&gt; term()</tt></li>
+<li><tt>OnRequest = (Params::term(), State::term()) -&gt; {term(), term()}</tt></li>
+<li><tt>StateFunc = () -&gt; term()</tt></li>
+</ul></p>
+</div>
+
+<h3 class="function"><a name="new_in_pid-4">new_in_pid/4</a></h3>
+<div class="spec">
+<p><tt>new_in_pid(OnMessage, OnRequest, StateFunc, X4) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="receive_request-1">receive_request/1</a></h3>
+<div class="spec">
+<p><tt>receive_request(TimeStamp::integer()) -&gt; term()</tt></p>
+</div><p><p>Receives the return value from a previous sent request to a data server.  
+The TimeStamp given is a unique identifier to the request to receive. If the  
+request is never received then this will block indefinitely.</p>
+ 
+  The TimeStamp should be a value returned from the send_request function.
+ </p>
+
+<h3 class="function"><a name="receive_request-2">receive_request/2</a></h3>
+<div class="spec">
+<p><tt>receive_request(TimeStamp::integer(), TimeOut::integer()) -&gt; term()</tt></p>
+</div><p>Same as the other collect_request function only this has a time out value.</p>
+
+<h3 class="function"><a name="request-2">request/2</a></h3>
+<div class="spec">
+<p><tt>request(Server::<a href="#type-data_server">data_server()</a>, Message::atom()) -&gt; term()</tt></p>
+</div><p>Sends the message to the server and then returns the value returned from the request.
+  The ok atom will be sent as the default parameters.
+ </p>
+
+<h3 class="function"><a name="request-3">request/3</a></h3>
+<div class="spec">
+<p><tt>request(Server::<a href="#type-data_server">data_server()</a>, Message::atom(), Params::term()) -&gt; term()</tt></p>
+</div><p>Sends the message to the server and then returns the value returned from the request.
+  The Message and the Params will be passed into the data_servers OnRequest fun.
+  This fun defines the value to return.
+ </p>
+
+<h3 class="function"><a name="request_timeout-3">request_timeout/3</a></h3>
+<div class="spec">
+<p><tt>request_timeout(Server::<a href="#type-data_server">data_server()</a>, Message::atom(), Timeout::integer()) -&gt; timeout | term()</tt></p>
+</div><p>A request reply, but with a timeout value.
+  If a response is not received within the given amount of time then failure is
+  presumed and the atom timeout will be returned. Otherwise it will be the
+  return value of the request.
+ </p>
+
+<h3 class="function"><a name="request_timeout-4">request_timeout/4</a></h3>
+<div class="spec">
+<p><tt>request_timeout(Server::<a href="#type-data_server">data_server()</a>, Message::atom(), Params::term(), Timeout::integer()) -&gt; timeout | term()</tt></p>
+</div><p>The same as the other request_timeout function, only this also allows a request parameter.</p>
+
+<h3 class="function"><a name="send-2">send/2</a></h3>
+<div class="spec">
+<p><tt>send(Server::<a href="#type-data_server">data_server()</a>, Message::atom()) -&gt; ok</tt></p>
+</div><p>Sends the message to the given data_server. It's parameters is the atom ok.
+  The OnMessage fun stored by the data_server will then handle the message.
+ </p>
+
+<h3 class="function"><a name="send-3">send/3</a></h3>
+<div class="spec">
+<p><tt>send(Server::<a href="#type-data_server">data_server()</a>, Message::atom(), Params::term()) -&gt; ok</tt></p>
+</div><p>Sends the given message, with the given parameters, to the given server.
+  The OnMessage fun stored by the data_server will then handle the message with
+  the given parameters.
+ </p>
+
+<h3 class="function"><a name="send_request-2">send_request/2</a></h3>
+<div class="spec">
+<p><tt>send_request(Server::<a href="#type-data_server">data_server()</a>, Message::atom()) -&gt; TimeStamp::integer()</tt></p>
+</div><p>This is the same as request, except that it does not block and wait for a reply.
+  Instead you must use collect_request at a later date to receive the reply. To
+  receive the reply you will also need to use the TimeStamp returned by this
+  send_request function.
+ </p>
+
+<h3 class="function"><a name="send_request-3">send_request/3</a></h3>
+<div class="spec">
+<p><tt>send_request(Server::<a href="#type-data_server">data_server()</a>, Message::atom(), Params::term()) -&gt; TimeStamp::integer()</tt></p>
+</div><p>A request is sent but the function returns directly.
+  The return value should be retrieved later using the receive_request function.
+ </p>
+
+<h3 class="function"><a name="set_message_forward-2">set_message_forward/2</a></h3>
+<div class="spec">
+<p><tt>set_message_forward(Server::<a href="#type-server">server()</a>, Destination::pid() | none) -&gt; ok</tt></p>
+</div><p><p>Sets where to forward messages on to.  
+This is to allow servers to spawn child processes where work is performed,  
+that look exactly like the server who spawned them, whilst the server can  
+deal with more incomming requests.</p>
+ 
+  Setting the destination to none will disable mail forwarding.
+ </p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

@@ -111,7 +111,7 @@ handle_cast({node_change, Node}, Clients) ->
 {stop, normal, []}.
 
 handle_info(Msg, Cats) ->
-  io:format("Unexpected message: ~p~n",[Msg]),
+  io:format("Ward unexpected message: ~p~n",[Msg]),
   {noreply, Cats}.
 
 terminate(_, _) ->

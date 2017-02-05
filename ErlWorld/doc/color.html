@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module color</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module color</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+Defines how to create colours and how to retrieve the values from colours.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+Defines how to create colours and how to retrieve the values from colours.   
+Colours are stored as a tuple in the form {red, green, blue, alpha}. All   
+components are floats.</p>
+  
+   <p>By using this file it allows the user to abstract away how they care about   
+colours.</p>
+  
+   It also contains common colours for you to use.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#black-0">black/0</a></td><td>A predefined color, black.</td></tr>
+<tr><td valign="top"><a href="#blue-0">blue/0</a></td><td>A predefined color, blue.</td></tr>
+<tr><td valign="top"><a href="#get_alpha-1">get_alpha/1</a></td><td>Returns the alpha component from the given colour.</td></tr>
+<tr><td valign="top"><a href="#get_blue-1">get_blue/1</a></td><td>Returns the blue component from the given colour.</td></tr>
+<tr><td valign="top"><a href="#get_green-1">get_green/1</a></td><td>Returns the green component from the given colour.</td></tr>
+<tr><td valign="top"><a href="#get_red-1">get_red/1</a></td><td>Returns the red component from the given colour.</td></tr>
+<tr><td valign="top"><a href="#green-0">green/0</a></td><td>A predefined color, green.</td></tr>
+<tr><td valign="top"><a href="#grey-0">grey/0</a></td><td>A predefined color, grey.</td></tr>
+<tr><td valign="top"><a href="#new-3">new/3</a></td><td>Creates and returns a new Color object with full alpha.</td></tr>
+<tr><td valign="top"><a href="#new-4">new/4</a></td><td>Creates and returns a new Color object.</td></tr>
+<tr><td valign="top"><a href="#orange-0">orange/0</a></td><td>A predefined color, orange.</td></tr>
+<tr><td valign="top"><a href="#pink-0">pink/0</a></td><td>A predefined color, pink.</td></tr>
+<tr><td valign="top"><a href="#purple-0">purple/0</a></td><td>A predefined color, purple.</td></tr>
+<tr><td valign="top"><a href="#red-0">red/0</a></td><td>A predefined color, red.</td></tr>
+<tr><td valign="top"><a href="#white-0">white/0</a></td><td>A predefined color, white.</td></tr>
+<tr><td valign="top"><a href="#yellow-0">yellow/0</a></td><td>A predefined color, yellow.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="black-0">black/0</a></h3>
+<div class="spec">
+<p><tt>black() -&gt; Black::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, black.</p>
+
+<h3 class="function"><a name="blue-0">blue/0</a></h3>
+<div class="spec">
+<p><tt>blue() -&gt; Blue::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, blue.</p>
+
+<h3 class="function"><a name="get_alpha-1">get_alpha/1</a></h3>
+<div class="spec">
+<p><tt>get_alpha(Color::<a href="#type-color">color()</a>) -&gt; Alpha::float()</tt></p>
+</div><p>Returns the alpha component from the given colour.</p>
+
+<h3 class="function"><a name="get_blue-1">get_blue/1</a></h3>
+<div class="spec">
+<p><tt>get_blue(Color::<a href="#type-color">color()</a>) -&gt; Blue::float()</tt></p>
+</div><p>Returns the blue component from the given colour.</p>
+
+<h3 class="function"><a name="get_green-1">get_green/1</a></h3>
+<div class="spec">
+<p><tt>get_green(Color::<a href="#type-color">color()</a>) -&gt; Green::float()</tt></p>
+</div><p>Returns the green component from the given colour.</p>
+
+<h3 class="function"><a name="get_red-1">get_red/1</a></h3>
+<div class="spec">
+<p><tt>get_red(Color::<a href="#type-color">color()</a>) -&gt; Red::float()</tt></p>
+</div><p>Returns the red component from the given colour.</p>
+
+<h3 class="function"><a name="green-0">green/0</a></h3>
+<div class="spec">
+<p><tt>green() -&gt; Green::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, green.</p>
+
+<h3 class="function"><a name="grey-0">grey/0</a></h3>
+<div class="spec">
+<p><tt>grey() -&gt; Grey::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, grey.</p>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(Red::float(), Green::float(), Blue::float()) -&gt; Color::<a href="#type-color">color()</a></tt></p>
+</div><p>Creates and returns a new Color object with full alpha.</p>
+
+<h3 class="function"><a name="new-4">new/4</a></h3>
+<div class="spec">
+<p><tt>new(Red::float(), Green::float(), Blue::float(), Alpha::float()) -&gt; Color::<a href="#type-color">color()</a></tt></p>
+</div><p>Creates and returns a new Color object.</p>
+
+<h3 class="function"><a name="orange-0">orange/0</a></h3>
+<div class="spec">
+<p><tt>orange() -&gt; Orange::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, orange.</p>
+
+<h3 class="function"><a name="pink-0">pink/0</a></h3>
+<div class="spec">
+<p><tt>pink() -&gt; Pink::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, pink.</p>
+
+<h3 class="function"><a name="purple-0">purple/0</a></h3>
+<div class="spec">
+<p><tt>purple() -&gt; Purple::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, purple.</p>
+
+<h3 class="function"><a name="red-0">red/0</a></h3>
+<div class="spec">
+<p><tt>red() -&gt; Red::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, red.</p>
+
+<h3 class="function"><a name="white-0">white/0</a></h3>
+<div class="spec">
+<p><tt>white() -&gt; White::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, white.</p>
+
+<h3 class="function"><a name="yellow-0">yellow/0</a></h3>
+<div class="spec">
+<p><tt>yellow() -&gt; Yellow::<a href="#type-color">color()</a></tt></p>
+</div><p>A predefined color, yellow.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

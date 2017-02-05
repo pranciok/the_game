@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module actor</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module actor</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+The Actor module defines how to create and interact with Actors in the world.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+The Actor module defines how to create and interact with Actors in the world.</p>
+  
+   <p>An Actor is made up of three aspects:<br>
+       = State - an instance of actor_state<br>
+       = Act - A callback function defining how to update this Actors state.<br>
+       = Paint - A callback function defining how to paint.<br></p>
+  
+       <p><em>Actor State</em><br>   
+The ActorState should be an instance made from the actor_state module (or a   
+conceptual sub-class of this). Custom properties can be added to the   
+actor_state when it is setup.</p>
+  
+       <p><em>Act( State::actor_state(), Parent::pid() ) -&gt; NewState::actor_state()</em><br>   
+The Act function defines how to change or update the Actors actor_state on   
+each frame. The result of this function is the Actors state for the next   
+frame. The signature of the Act function must be in the format stated above.   
+The parent is PID to the World that this Actor is in.</p>
+  
+       <em>Paint( State::actor_state(), G::graphics() ) -&gt; ok</em><br>
+   The Paint function defines how to paint the Actors actor_state to the
+   screen. The result of this callback function is ignored. The function must
+   be in the signature defined above. The given graphics object, G, can be
+   passed into the functions in the graphics module to perform drawing.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#act-2">act/2</a></td><td>Requests that the given actor acts and updates it's state, this blocks until complete.</td></tr>
+<tr><td valign="top"><a href="#compare-2">compare/2</a></td><td>Compares the two given Actors and returns true or false to state if ActorA should come before or after ActorB.</td></tr>
+<tr><td valign="top"><a href="#get_act-1">get_act/1</a></td><td>Gets the act callback function from the given Actor.</td></tr>
+<tr><td valign="top"><a href="#get_controls-1">get_controls/1</a></td><td>Asks the given Actor to get it's controls.</td></tr>
+<tr><td valign="top"><a href="#get_name-1">get_name/1</a></td><td>Returns the name currently stored in this actors state.</td></tr>
+<tr><td valign="top"><a href="#get_paint-1">get_paint/1</a></td><td>Returns the paint callback function from the given Actor.</td></tr>
+<tr><td valign="top"><a href="#get_state-1">get_state/1</a></td><td>Gets the actor_state from the given Actor.</td></tr>
+<tr><td valign="top"><a href="#new-2">new/2</a></td><td>Creates a new Actor with a blank actor_state.</td></tr>
+<tr><td valign="top"><a href="#new-3">new/3</a></td><td>Creates a new Actor which uses the given state as it's initial actor_state.</td></tr>
+<tr><td valign="top"><a href="#paint-2">paint/2</a></td><td>Calls to paint this Actor.</td></tr>
+<tr><td valign="top"><a href="#receive_act-0">receive_act/0</a></td><td>Waits for a response message from any Actor that this process call act on.</td></tr>
+<tr><td valign="top"><a href="#send_act-2">send_act/2</a></td><td>This sends a non-blocking act message to the given actor.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="act-2">act/2</a></h3>
+<div class="spec">
+<p><tt>act(Actor::<a href="#type-actor">actor()</a>, Parent::pid()) -&gt; ok</tt></p>
+</div><p>Requests that the given actor acts and updates it's state, this blocks until complete.</p>
+
+<h3 class="function"><a name="compare-2">compare/2</a></h3>
+<div class="spec">
+<p><tt>compare(ActorA::<a href="#type-actor">actor()</a>, ActorB::<a href="#type-actor">actor()</a>) -&gt; bool()</tt></p>
+</div><p>Compares the two given Actors and returns true or false to state if ActorA should come before or after ActorB.</p>
+
+<h3 class="function"><a name="get_act-1">get_act/1</a></h3>
+<div class="spec">
+<p><tt>get_act(Actor::<a href="#type-actor">actor()</a>) -&gt; Act::(State::<a href="#type-actor_state">actor_state()</a>, Parent::pid()) -&gt; <a href="#type-actor_state">actor_state()</a></tt></p>
+</div><p>Gets the act callback function from the given Actor.</p>
+
+<h3 class="function"><a name="get_controls-1">get_controls/1</a></h3>
+<div class="spec">
+<p><tt>get_controls(Actor::<a href="#type-actor">actor()</a>) -&gt; Controls::<a href="#type-controls">controls()</a> | nil</tt></p>
+</div><p>Asks the given Actor to get it's controls. nil is returned if this Actor cannot find the display.
+  The Actor needs to be owned (either directly or indirectly) by a running
+  Mainloop object.</p>
+
+<h3 class="function"><a name="get_name-1">get_name/1</a></h3>
+<div class="spec">
+<p><tt>get_name(Actor::<a href="#type-actor">actor()</a>) -&gt; Name::<a href="#type-name">name()</a></tt></p>
+</div><p>Returns the name currently stored in this actors state.
+  This is mainly here as a helper method to avoid getting the whole state of an
+  actor, just for one value.
+ </p>
+
+<h3 class="function"><a name="get_paint-1">get_paint/1</a></h3>
+<div class="spec">
+<p><tt>get_paint(Actor::<a href="#type-actor">actor()</a>) -&gt; Paint::(State::<a href="#type-actor_state">actor_state()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; term()</tt></p>
+</div><p>Returns the paint callback function from the given Actor.</p>
+
+<h3 class="function"><a name="get_state-1">get_state/1</a></h3>
+<div class="spec">
+<p><tt>get_state(Actor::<a href="#type-actor">actor()</a>) -&gt; State::<a href="#type-actor_state">actor_state()</a></tt></p>
+</div><p>Gets the actor_state from the given Actor.</p>
+
+<h3 class="function"><a name="new-2">new/2</a></h3>
+<div class="spec">
+<p><tt>new(Act::ActFunc, Paint::PaintFunc) -&gt; NewActor::<a href="#type-actor">actor()</a></tt>
+<ul class="definitions"><li><tt>ActFunc = (State::<a href="#type-actor_state">actor_state()</a>, Parent::pid()) -&gt; <a href="#type-actor_state">actor_state()</a></tt></li>
+<li><tt>PaintFunc = (State::<a href="#type-actor_state">actor_state()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Creates a new Actor with a blank actor_state.
+  It will use the act and paint callback functions given to update and paint
+  it's default state.</p>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(Act::ActFunc, Paint::PaintFunc, StartState::<a href="#type-actor_state">actor_state()</a>) -&gt; NewActor::<a href="#type-actor">actor()</a></tt>
+<ul class="definitions"><li><tt>ActFunc = (State::<a href="#type-actor_state">actor_state()</a>, Parent::pid()) -&gt; <a href="#type-actor_state">actor_state()</a></tt></li>
+<li><tt>PaintFunc = (State::<a href="#type-actor_state">actor_state()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Creates a new Actor which uses the given state as it's initial actor_state.
+  It will use the act and paint callback functions given to update and paint.</p>
+
+<h3 class="function"><a name="paint-2">paint/2</a></h3>
+<div class="spec">
+<p><tt>paint(Actor::<a href="#type-actor">actor()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; ok</tt></p>
+</div><p><p>Calls to paint this Actor.</p>
+ 
+  <p>Typically you only call this if you yourself are currently painting and you  
+want to perform a special case where another Actor will paint on demand.</p>
+ 
+  <p>This will block until it is complete.</p>
+ 
+  Warning: This should only ever be called within another Actor's paint
+  function and the painting will occur in the same process. It should never be
+  sent off to be run in a seperate process.
+ </p>
+
+<h3 class="function"><a name="receive_act-0">receive_act/0</a></h3>
+<div class="spec">
+<p><tt>receive_act() -&gt; ok</tt></p>
+</div><p>Waits for a response message from any Actor that this process call act on.
+  This should not be called unless the send_act function was first called.
+  Otherwise this will just block forever.
+ </p>
+
+<h3 class="function"><a name="send_act-2">send_act/2</a></h3>
+<div class="spec">
+<p><tt>send_act(Actor::<a href="#type-actor">actor()</a>, Parent::pid()) -&gt; ok</tt></p>
+</div><p>This sends a non-blocking act message to the given actor.
+  The parent given will be passed in as it's parent. When the Actor has
+  finished acting it will send a response back to this process. To check for
+  this message the accompanied receive_act function should be used.
+ </p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

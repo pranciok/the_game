@@ -3,7 +3,7 @@
 
 -include("settings.hrl").
 
--export([start_link/0, create_player/1, stop_all_players/1, stop/1]).
+-export([start_link/0, create_player/1, stop_all_players/0, stop/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
@@ -13,26 +13,26 @@
 start_link() ->
   gen_server:start_link(?MODULE, [#node_state{name = node(), no_of_wards = ?NO_OF_WARDS}], []).
 
-create_player(Pid) ->
-  gen_server:call(Pid, create_player).
+create_player(Mode) ->
+  gen_server:call(node_commodore, {create_player, Mode}).
 
-stop_all_players(Pid) ->
-  gen_server:cast(Pid, stop_all_players).
+stop_all_players() ->
+  gen_server:cast(node_commodore, stop_all_players).
 
-%% Synchronous call
-
-stop(Pid) ->
-  gen_server:call(Pid, terminate).
+stop() ->
+  gen_server:call(node_commodore, terminate).
 
 %%% Server functions
 init([State]) ->
+  % ets:new(players,[public, set, named_table]),
   random:seed(erlang:timestamp()),
   register(node_commodore, self()),
+  mast:start(),
   {ok, State}.
 
-%% TODO:promjeni u diplomskome da su wardovi sortirani po težini!!!
+%% TODO: promjeni u diplomskome da su wardovi sortirani po težini!!!
 
-handle_call(create_player, _From, NodeState) ->
+handle_call({create_player, Mode}, _From, NodeState) ->
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
             [{'<','$3', 2}],
             [{{'$1','$2'}}]}],
@@ -43,7 +43,7 @@ handle_call(create_player, _From, NodeState) ->
   RandWard = random:uniform(length(MyWards)),
 
   {WardId, WardPid} = lists:nth(RandWard, MyWards),
-  PlayerPid = start_player_on_ward(WardId, WardPid),
+  PlayerPid = start_player_on_ward(WardId, WardPid, Mode),
   rpc:call(?ADMIRAL, admiral, add_clients_total, [1]),
   {reply, PlayerPid, NodeState};
 
@@ -59,7 +59,7 @@ handle_cast(stop_all_players, NodeState) ->
   {noreply, NodeState}.
 
 handle_info(Msg, Cats) ->
-    io:format("Unexpected message: ~p~n",[Msg]),
+    io:format("Commodore unexpected message: ~p~n",[Msg]),
     {noreply, Cats}.
 
 terminate(_, _) ->
@@ -69,13 +69,13 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% internal
-start_player_on_ward(WardId, undefined) ->
+start_player_on_ward(WardId, undefined, Mode) ->
   {ok, WardPid} = ward:start_ward(WardId),
-  start_player(WardId, WardPid);
-start_player_on_ward(WardId, WardPid) ->
-  start_player(WardId, WardPid).
+  start_player(WardId, WardPid, Mode);
+start_player_on_ward(WardId, WardPid, Mode) ->
+  start_player(WardId, WardPid, Mode).
 
-start_player(WardId, WardPid) ->
+start_player(WardId, WardPid, Mode) ->
   {X, Y} = WardId,
   TopLeftWardCornerX = X * ?WARD_SIZE,
   TopLeftWardCornerY = Y * ?WARD_SIZE,
@@ -83,7 +83,7 @@ start_player(WardId, WardPid) ->
   PlayerSpawnY = TopLeftWardCornerY + random:uniform(?WARD_SIZE),
   {ok, ClientPid} = player_handler:start(WardId),
   ward:add_client(WardPid, ClientPid),
-  PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY),
+  PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY, Mode),
   player_handler:add_player_pid(ClientPid, PlayerPid),
   PlayerPid.
 

@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module collisions</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module collisions</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>This defines the interface for the collisions modules.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>This defines the interface for the collisions modules.   
+How they actually is entirely down to the implementor, this just defines   
+the protocols and some boiler plate to connect the update, add, remove and   
+collision detection functions to your code.</p>
+  
+   <p>To implement you pass in functions that define the actions to perform when   
+those protocols are run. This is literally just a series of funs.</p>
+  
+   <p>It is intended that the user will never use this directly. Instead the World   
+will pass calls on to this automatically at the appropriate time.</p>
+  
+   <p>All of the messages are one way messages where the response is to be   
+performed by the fun provided. This allows the funs provided to pass work   
+out to seperate processes.</p>
+  
+   Implementors should also take care to ensure that implementing collisions
+   modules do not include actors intersecting against themselves (which should
+   always be true).
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#add-2">add/2</a></td><td>This is called to add an actor to the collisions object.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actor-5">apply_to_intersecting_actor/5</a></td><td></td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actor-6">apply_to_intersecting_actor/6</a></td><td>This will search for one actors that intersect the given actor.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actors-5">apply_to_intersecting_actors/5</a></td><td></td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actors-6">apply_to_intersecting_actors/6</a></td><td>This will search for all actors that intersect the given actor.</td></tr>
+<tr><td valign="top"><a href="#new-6">new/6</a></td><td>This creates a new Collisions object defined by the functions given.</td></tr>
+<tr><td valign="top"><a href="#remove-2">remove/2</a></td><td>This is called whenever an Actor is to be removed from the collisions object.</td></tr>
+<tr><td valign="top"><a href="#remove_all-1">remove_all/1</a></td><td>This removes all actors stored inside of this collisions object.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="add-2">add/2</a></h3>
+<div class="spec">
+<p><tt>add(Colls::<a href="#type-collisions">collisions()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; ok</tt></p>
+</div><p>This is called to add an actor to the collisions object.
+  Any future check for an intersection should now include the actor given.</p>
+
+<h3 class="function"><a name="apply_to_intersecting_actor-5">apply_to_intersecting_actor/5</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actor(Colls, Sender, Actor, CheckFun, OnCollFun) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="apply_to_intersecting_actor-6">apply_to_intersecting_actor/6</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actor(Colls, Sender, OtherName, Actor, CheckFun, OnCollFun) -&gt; any()</tt></p>
+</div><p>This will search for one actors that intersect the given actor.
+  The intersecting actor will be passed into the OnCollFunc, and then a true
+  or false will be sent back to the Sender.
+  Note that this returns directly and the result will be sent to the Sender
+  process id.</p>
+
+<h3 class="function"><a name="apply_to_intersecting_actors-5">apply_to_intersecting_actors/5</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actors(Colls, Sender, Actor, CheckFun, OnCollFun) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="apply_to_intersecting_actors-6">apply_to_intersecting_actors/6</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actors(Colls, Sender, OtherName, Actor, CheckFun, OnCollFun) -&gt; any()</tt></p>
+</div><p>This will search for all actors that intersect the given actor.
+  All of the intersecting actors will be run on the OnCollFunc, and then a true
+  or false will be sent back to the Sender.
+  Note that this returns directly and the result will be sent to the Sender
+  process id.</p>
+
+<h3 class="function"><a name="new-6">new/6</a></h3>
+<div class="spec">
+<p><tt>new(State::term(), AddFun, RemoveFun, RemoveAllFun, ApplyToIntersectingActorsFun, ApplyToIntersectingActorFun) -&gt; Collisions::<a href="#type-collisions">collisions()</a></tt></p>
+</div><p><p>This creates a new Collisions object defined by the functions given.  
+The state is the internal state of the collisions object. The funs provided  
+implement each of the functions required by the collisions object.</p>
+ 
+  To implement a new type of collisions you only need to call this function and
+  pass in the required values. No more then that.
+ </p>
+
+<h3 class="function"><a name="remove-2">remove/2</a></h3>
+<div class="spec">
+<p><tt>remove(Colls::<a href="#type-collisions">collisions()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; ok</tt></p>
+</div><p>This is called whenever an Actor is to be removed from the collisions object.
+  From now on when an actor is checked for collisions, the actor provided should
+  not be included as a part of the intersecting actors.</p>
+
+<h3 class="function"><a name="remove_all-1">remove_all/1</a></h3>
+<div class="spec">
+<p><tt>remove_all(Colls::<a href="#type-collisions">collisions()</a>) -&gt; ok</tt></p>
+</div><p>This removes all actors stored inside of this collisions object.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

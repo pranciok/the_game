@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Module world</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module world</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>   
+The World module is conceptually a sub-class of Actor.
+
+<p><b>Authors:</b> Joseph Lenton.</p>
+
+<h2><a name="description">Description</a></h2><p>   
+The World module is conceptually a sub-class of Actor. Objects created using   
+this module can always be used in the functions of the Actor module, and   
+anywhere an Actor can be given.</p>
+  
+   <p>This is an Actor that can hold Actors. In order to be a world this uses a   
+world_state instead of an actor_state.</p>
+  
+   In all other ways it runs just like an Actor. It has a state, an act
+   callback function and a paint callback function. By default the act and
+   paint callback functions for a World just call to act and paint all of the
+   Actors the World is holding.
+  
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#act-2">act/2</a></td><td>Equivalent to <a href="actor.html#act-2"><tt>actor:act(Actor, Parent)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#add_actor-2">add_actor/2</a></td><td>Adds the given Actor to this World.</td></tr>
+<tr><td valign="top"><a href="#add_actors-2">add_actors/2</a></td><td>Adds a the given list of Actors to this World.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actor-3">apply_to_intersecting_actor/3</a></td><td>The same as the equivalent apply_to_intersecting_actors, only this collides with only one actor.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actor-4">apply_to_intersecting_actor/4</a></td><td>Intersects against the first actor whose name matches the given name.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actor-5">apply_to_intersecting_actor/5</a></td><td>The full apply_to_intersecting_actor function.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actors-3">apply_to_intersecting_actors/3</a></td><td>Finds all actors that intersect the given actor, and then applies the function to them.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actors-4">apply_to_intersecting_actors/4</a></td><td>Only intersects against actors with the given name stored in their actor_state.</td></tr>
+<tr><td valign="top"><a href="#apply_to_intersecting_actors-5">apply_to_intersecting_actors/5</a></td><td>The full apply_to_intersecting_actors function.</td></tr>
+<tr><td valign="top"><a href="#compare-2">compare/2</a></td><td>Equivalent to <a href="actor.html#compare-2"><tt>actor:compare(ActorA, ActorB)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#get_act-1">get_act/1</a></td><td>Equivalent to <a href="actor.html#get_act-1"><tt>actor:get_act(Actor)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#get_controls-1">get_controls/1</a></td><td>Equivalent to <a href="actor.html#get_controls-1"><tt>actor:get_controls(Actor)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#get_name-1">get_name/1</a></td><td>Equivalent to <a href="actor.html#get_name-1"><tt>actor:get_name(Actor)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#get_paint-1">get_paint/1</a></td><td>Equivalent to <a href="actor.html#get_paint-1"><tt>actor:get_paint(Actor)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#get_state-1">get_state/1</a></td><td>Equivalent to <a href="actor.html#get_state-1"><tt>actor:get_state(Actor)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#is_intersecting_actor-2">is_intersecting_actor/2</a></td><td>This is a very basic check for any intersecting actors.</td></tr>
+<tr><td valign="top"><a href="#is_intersecting_actor-3">is_intersecting_actor/3</a></td><td>This is for testing for an intersection only against actors of a given name.</td></tr>
+<tr><td valign="top"><a href="#new-0">new/0</a></td><td>Creates a new blank world with an empty state.</td></tr>
+<tr><td valign="top"><a href="#new-1">new/1</a></td><td>Creates a new world that will update the world_state given.</td></tr>
+<tr><td valign="top"><a href="#new-2">new/2</a></td><td>Creates a blank World which will paint and update with the functions given.</td></tr>
+<tr><td valign="top"><a href="#new-3">new/3</a></td><td>Creates a new World with that will run the act and paint callbacks given, on the state given.</td></tr>
+<tr><td valign="top"><a href="#paint-2">paint/2</a></td><td>Equivalent to <a href="actor.html#paint-2"><tt>actor:paint(Actor, G)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#receive_act-0">receive_act/0</a></td><td>Equivalent to <a href="actor.html#receive_act-0"><tt>actor:receive_act()</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#remove_actor-2">remove_actor/2</a></td><td>Removes the given Actor from this World, if it is contained in the World.</td></tr>
+<tr><td valign="top"><a href="#remove_actors-2">remove_actors/2</a></td><td>Removes the given list of Actors from this World.</td></tr>
+<tr><td valign="top"><a href="#remove_all_actors-1">remove_all_actors/1</a></td><td>Empties the given World of all of the Actors it is holding.</td></tr>
+<tr><td valign="top"><a href="#send_act-2">send_act/2</a></td><td>Equivalent to <a href="actor.html#send_act-2"><tt>actor:send_act(Actor, Parent)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#set_paint_order-3">set_paint_order/3</a></td><td>Sets the painting order of the given Actor within this World.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="act-2">act/2</a></h3>
+<div class="spec">
+<p><tt>act(Actor, Parent) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#act-2"><tt>actor:act(Actor, Parent)</tt></a>.</p>
+
+
+<h3 class="function"><a name="add_actor-2">add_actor/2</a></h3>
+<div class="spec">
+<p><tt>add_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; ok</tt></p>
+</div><p>Adds the given Actor to this World.</p>
+
+<h3 class="function"><a name="add_actors-2">add_actors/2</a></h3>
+<div class="spec">
+<p><tt>add_actors(World::<a href="#type-world">world()</a>, Actors::[<a href="#type-actor">actor()</a>]) -&gt; ok</tt></p>
+</div><p>Adds a the given list of Actors to this World.</p>
+
+<h3 class="function"><a name="apply_to_intersecting_actor-3">apply_to_intersecting_actor/3</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>The same as the equivalent apply_to_intersecting_actors, only this collides with only one actor.</p>
+
+<h3 class="function"><a name="apply_to_intersecting_actor-4">apply_to_intersecting_actor/4</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OtherActorName::atom(), OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Intersects against the first actor whose name matches the given name.
+  The name used in the test is taken from the name stored in the actor_state
+  from the actor being tested.
+ </p>
+
+<h3 class="function"><a name="apply_to_intersecting_actor-5">apply_to_intersecting_actor/5</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OtherActorName::atom(), CustomCheckFun, OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>CustomCheckFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; <a href="#type-boolean">boolean()</a></tt></li>
+<li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>The full apply_to_intersecting_actor function.
+  This includes options for setting a custom checking fun, a fun to be run when
+  a collision is found and a given name of the actors to search through.</p>
+
+<h3 class="function"><a name="apply_to_intersecting_actors-3">apply_to_intersecting_actors/3</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actors(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p><p>Finds all actors that intersect the given actor, and then applies the function to them.  
+If 1 or more actors are found to intersect the given actor, then this will  
+return true. Otherwise it will return false.</p>
+ 
+  The result of the OnCollFun is ignored.
+ </p>
+
+<h3 class="function"><a name="apply_to_intersecting_actors-4">apply_to_intersecting_actors/4</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actors(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OtherActorName::atom(), OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Only intersects against actors with the given name stored in their actor_state.
+  Only other actors who's actor_name matches the name given will be run against
+  the given OnCollFun.
+ </p>
+
+<h3 class="function"><a name="apply_to_intersecting_actors-5">apply_to_intersecting_actors/5</a></h3>
+<div class="spec">
+<p><tt>apply_to_intersecting_actors(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OtherActorName::atom(), CustomCheckFun, OnCollFun) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt>
+<ul class="definitions"><li><tt>CustomCheckFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; <a href="#type-boolean">boolean()</a></tt></li>
+<li><tt>OnCollFun = (OtherActorState::<a href="#type-actor_state">actor_state()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>The full apply_to_intersecting_actors function.
+  This includes options for setting a custom checking fun, a fun to be run when
+  a collision is found and a given name of the actors to search through.</p>
+
+<h3 class="function"><a name="compare-2">compare/2</a></h3>
+<div class="spec">
+<p><tt>compare(ActorA, ActorB) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#compare-2"><tt>actor:compare(ActorA, ActorB)</tt></a>.</p>
+
+
+<h3 class="function"><a name="get_act-1">get_act/1</a></h3>
+<div class="spec">
+<p><tt>get_act(Actor) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#get_act-1"><tt>actor:get_act(Actor)</tt></a>.</p>
+
+
+<h3 class="function"><a name="get_controls-1">get_controls/1</a></h3>
+<div class="spec">
+<p><tt>get_controls(Actor) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#get_controls-1"><tt>actor:get_controls(Actor)</tt></a>.</p>
+
+
+<h3 class="function"><a name="get_name-1">get_name/1</a></h3>
+<div class="spec">
+<p><tt>get_name(Actor) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#get_name-1"><tt>actor:get_name(Actor)</tt></a>.</p>
+
+
+<h3 class="function"><a name="get_paint-1">get_paint/1</a></h3>
+<div class="spec">
+<p><tt>get_paint(Actor) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#get_paint-1"><tt>actor:get_paint(Actor)</tt></a>.</p>
+
+
+<h3 class="function"><a name="get_state-1">get_state/1</a></h3>
+<div class="spec">
+<p><tt>get_state(Actor) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#get_state-1"><tt>actor:get_state(Actor)</tt></a>.</p>
+
+
+<h3 class="function"><a name="is_intersecting_actor-2">is_intersecting_actor/2</a></h3>
+<div class="spec">
+<p><tt>is_intersecting_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt></p>
+</div><p>This is a very basic check for any intersecting actors.
+  If any actor intersects the actor given then this return true, otherwise
+  false. This ignores the Actor given.
+ </p>
+
+<h3 class="function"><a name="is_intersecting_actor-3">is_intersecting_actor/3</a></h3>
+<div class="spec">
+<p><tt>is_intersecting_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, OtherActorName::atom()) -&gt; IsIntersection::<a href="#type-boolean">boolean()</a></tt></p>
+</div><p>This is for testing for an intersection only against actors of a given name.
+  The name given is compared to the name stored in the actor_state of the actors
+  being tested against.
+ </p>
+
+<h3 class="function"><a name="new-0">new/0</a></h3>
+<div class="spec">
+<p><tt>new() -&gt; World::<a href="#type-world">world()</a></tt></p>
+</div><p>Creates a new blank world with an empty state.</p>
+
+<h3 class="function"><a name="new-1">new/1</a></h3>
+<div class="spec">
+<p><tt>new(State::<a href="#type-world_state">world_state()</a>) -&gt; World::<a href="#type-world">world()</a></tt></p>
+</div><p>Creates a new world that will update the world_state given.</p>
+
+<h3 class="function"><a name="new-2">new/2</a></h3>
+<div class="spec">
+<p><tt>new(Act::ActFunc, Paint::PaintFunc) -&gt; NewWorld::<a href="#type-world">world()</a></tt>
+<ul class="definitions"><li><tt>ActFunc = (State::<a href="#type-world_state">world_state()</a>, Parent::pid()) -&gt; <a href="#type-world_state">world_state()</a></tt></li>
+<li><tt>PaintFunc = (State::<a href="#type-world_state">world_state()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Creates a blank World which will paint and update with the functions given.</p>
+
+<h3 class="function"><a name="new-3">new/3</a></h3>
+<div class="spec">
+<p><tt>new(Act::ActFunc, Paint::PaintFunc, StartState::<a href="#type-world_state">world_state()</a>) -&gt; NewWorld::<a href="#type-world">world()</a></tt>
+<ul class="definitions"><li><tt>ActFunc = (State::<a href="#type-world_state">world_state()</a>, Parent::pid()) -&gt; <a href="#type-world_state">world_state()</a></tt></li>
+<li><tt>PaintFunc = (State::<a href="#type-world_state">world_state()</a>, G::<a href="#type-graphics">graphics()</a>) -&gt; term()</tt></li>
+</ul></p>
+</div><p>Creates a new World with that will run the act and paint callbacks given, on the state given.</p>
+
+<h3 class="function"><a name="paint-2">paint/2</a></h3>
+<div class="spec">
+<p><tt>paint(Actor, G) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#paint-2"><tt>actor:paint(Actor, G)</tt></a>.</p>
+
+
+<h3 class="function"><a name="receive_act-0">receive_act/0</a></h3>
+<div class="spec">
+<p><tt>receive_act() -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#receive_act-0"><tt>actor:receive_act()</tt></a>.</p>
+
+
+<h3 class="function"><a name="remove_actor-2">remove_actor/2</a></h3>
+<div class="spec">
+<p><tt>remove_actor(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>) -&gt; ok</tt></p>
+</div><p>Removes the given Actor from this World, if it is contained in the World.</p>
+
+<h3 class="function"><a name="remove_actors-2">remove_actors/2</a></h3>
+<div class="spec">
+<p><tt>remove_actors(World::<a href="#type-world">world()</a>, Actors::[<a href="#type-actor">actor()</a>]) -&gt; ok</tt></p>
+</div><p>Removes the given list of Actors from this World.</p>
+
+<h3 class="function"><a name="remove_all_actors-1">remove_all_actors/1</a></h3>
+<div class="spec">
+<p><tt>remove_all_actors(World::<a href="#type-world">world()</a>) -&gt; ok</tt></p>
+</div><p>Empties the given World of all of the Actors it is holding.</p>
+
+<h3 class="function"><a name="send_act-2">send_act/2</a></h3>
+<div class="spec">
+<p><tt>send_act(Actor, Parent) -&gt; any()</tt></p>
+</div><p>Equivalent to <a href="actor.html#send_act-2"><tt>actor:send_act(Actor, Parent)</tt></a>.</p>
+
+
+<h3 class="function"><a name="set_paint_order-3">set_paint_order/3</a></h3>
+<div class="spec">
+<p><tt>set_paint_order(World::<a href="#type-world">world()</a>, Actor::<a href="#type-actor">actor()</a>, PaintOrder::integer()) -&gt; ok</tt></p>
+</div><p>Sets the painting order of the given Actor within this World.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Mar 29 2010, 03:38:51.</i></p>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{application,'ErlWorld'}.
+{packages,[]}.
+{modules,[actor,actor_state,collisions,collisions_list,color,controls,
+          controls_handler,data_server,display,doc_gen,fps_actor,
+          function_server,graphics,image,mainloop,rand,text_image,util,world,
+          world_state]}.
