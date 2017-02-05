@@ -48,7 +48,7 @@ handle_cast({ping, {{_FromWard, FromNode}, {ToWard, ToNode}}}, {NoOfClientsTotal
   case Result of
     [] -> ets:insert(disputes, {{ToWard, FromNode}, 1, erlang:timestamp(), ?PING_TRESHOLD});
     [{_Key, PingNo, LastPing, Treshold}] ->
-      Diff = timer:now_diff(erlang:timestamp(), LastPing) / 1000000,
+      Diff = timer:now_diff(erlang:timestamp(), LastPing) / 1000000, % mikrosekunde
       case Diff >= ?PING_TRESHOLD  of
         true -> ets:delete(disputes, {ToWard, FromNode});
         _ ->
@@ -83,17 +83,10 @@ settle_dispute(WardId, CallerNode, OwnerNode, ClientsTotal, Masts) ->
   CallerNodeLoad = calculate_load(CallerNode, ClientsTotal),
   OwnerNodeLoad = calculate_load(OwnerNode, ClientsTotal),
   Resolution = DistanceDifference + NoOfPings - WardWeight - CallerNodeLoad + OwnerNodeLoad,
-  % io:format("RESOLUTION: ~p~n
-  %           pings: ~p~n
-  %           ward weight: ~p~n
-  %           caller load: ~p~n
-  %           owner load:~p~n",
-  %           [Resolution, NoOfPings, WardWeight, CallerNodeLoad, OwnerNodeLoad]),
   case Resolution > 0 of
     true ->
       rpc:call(CallerNode, ward, execute_handover, [DisputedWard]),
       ets:delete(disputes, {WardId, CallerNode}),
-      %io:format("from:~p, to:~p, ward:~p~n", [OwnerNode, CallerNode, DisputedWard#wards.id]),
       ok; %%% WARD HANDOVER
     _ -> ok
   end.

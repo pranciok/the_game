@@ -1,6 +1,6 @@
 -module(game).
 
--export([init/0, init/1, cleanup/0]).
+-export([init/0, init/1, cleanup/0, create_players_per_node/2]).
 
 -include("settings.hrl").
 
@@ -10,7 +10,7 @@ init() ->
   init(Nodes).
 
 init(Nodes) ->
-  AllNodes = ['admiral@game.cluster'|Nodes],
+  AllNodes = [?ADMIRAL|Nodes],
   % ok = mnesia:create_schema(AllNodes), %% SAMO PRI INSTALACIJI!
   rpc:multicall(AllNodes, application, start, [mnesia]),
   mnesia:create_table(wards,
@@ -19,12 +19,10 @@ init(Nodes) ->
       {type, set}]),
   populate_blank_ward_table(),
   admiral:start_link(),
-  admiral:add_clients_total(5 * ?NO_OF_NODES),
-  timer:sleep(5000),
   rpc:multicall(Nodes, node_commodore, start_link, []),
   players:start(),
   world_view:start(),
-  create_players_per_node(5, Nodes).
+  create_players_per_node(10, Nodes).
 
 create_players_per_node(_, []) -> ok;
 create_players_per_node(N, [Node|Nodes]) ->
@@ -35,7 +33,7 @@ create_players_per_node(N, [Node|Nodes]) ->
 cleanup() ->
   {_, Nodes} = lists:unzip(?GAME_NODES),
   players:stop_all_players(Nodes),
-  rpc:multicall(Nodes, node_commodore, stop_node, [node_commodore]),
+  rpc:multicall(Nodes, node_commodore, stop, [node_commodore]),
   admiral:stop(),
   rpc:multicall(Nodes, application, stop, [mnesia]).
 

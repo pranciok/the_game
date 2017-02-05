@@ -3,7 +3,7 @@
 
 -include("settings.hrl").
 
--export([start_link/0, create_player/1, stop_all_players/1, stop_node/1]).
+-export([start_link/0, create_player/1, stop_all_players/1, stop/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
@@ -21,7 +21,7 @@ stop_all_players(Pid) ->
 
 %% Synchronous call
 
-stop_node(Pid) ->
+stop(Pid) ->
   gen_server:call(Pid, terminate).
 
 %%% Server functions
@@ -29,6 +29,8 @@ init([State]) ->
   random:seed(erlang:timestamp()),
   register(node_commodore, self()),
   {ok, State}.
+
+%% TODO:promjeni u diplomskome da su wardovi sortirani po težini!!!
 
 handle_call(create_player, _From, NodeState) ->
   Match = [{#wards{id = '$1',pid = '$2',node = node(),weight = '$3'},
@@ -42,6 +44,7 @@ handle_call(create_player, _From, NodeState) ->
 
   {WardId, WardPid} = lists:nth(RandWard, MyWards),
   PlayerPid = start_player_on_ward(WardId, WardPid),
+  rpc:call(?ADMIRAL, admiral, add_clients_total, [1]),
   {reply, PlayerPid, NodeState};
 
 handle_call(terminate, _From, State) ->
@@ -78,10 +81,10 @@ start_player(WardId, WardPid) ->
   TopLeftWardCornerY = Y * ?WARD_SIZE,
   PlayerSpawnX = TopLeftWardCornerX + random:uniform(?WARD_SIZE),
   PlayerSpawnY = TopLeftWardCornerY + random:uniform(?WARD_SIZE),
-  {ok, ClientPid} = client_handler:start_client(WardId),
+  {ok, ClientPid} = player_handler:start(WardId),
   ward:add_client(WardPid, ClientPid),
   PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY),
-  client_handler:add_player_pid(ClientPid, PlayerPid),
+  player_handler:add_player_pid(ClientPid, PlayerPid),
   PlayerPid.
 
 stop_players([]) -> ok;

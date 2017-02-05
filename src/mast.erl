@@ -1,5 +1,6 @@
 -module(mast).
--export([start/0, stop/0, init/0]).
+-export([start/0, stop/0]).
+-export([init/0]).
 
 -include("settings.hrl").
 
@@ -14,13 +15,13 @@ init() ->
 
 loop() ->
   Mast = calculate_mast_position(),
-  rpc:call('admiral@game.cluster', admiral, mast, [node(), Mast]),
+  rpc:call(?ADMIRAL, admiral, mast, [node(), Mast]),
   receive
     {get_mast, Pid} ->
           Pid ! {mast, Mast},
           loop();
     stop -> ok
-  after 10000 -> loop()
+  after 5000 -> loop()
   end.
 
 calculate_mast_position() ->

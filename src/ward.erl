@@ -3,6 +3,8 @@
 
 -include("settings.hrl").
 
+%TODO promjeni ove get_clients u get_players
+
 -export([start_ward/1, stop_ward/1, stop_ward_players/1, get_clients/1, add_client/2,
         execute_handover/1, remove_client/2, replace_client/3, broadcast/3, node_change/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -94,7 +96,7 @@ handle_cast({replace, OldPid, NewPid}, Clients) ->
 
 handle_cast({broadcast, Event}, Clients) ->
   lists:foreach(fun(ClientPid) ->
-                      client_handler:nearby_event(ClientPid, Event)
+                      player_handler:nearby_event(ClientPid, Event)
                 end, Clients),
   {noreply, Clients};
 
@@ -104,7 +106,7 @@ handle_cast(stop_ward_players, Clients) ->
 
 handle_cast({node_change, Node}, Clients) ->
   lists:foreach(fun(ClientPid) ->
-                      client_handler:ward_changed_node(ClientPid, Node)
+                      player_handler:ward_changed_node(ClientPid, Node)
                 end, Clients),
 {stop, normal, []}.
 
@@ -121,5 +123,5 @@ code_change(_OldVsn, State, _Extra) ->
 %% internal
 stop_players([]) -> ok;
 stop_players([Client|Clients]) ->
-  client_handler:stop_client(Client),
+  player_handler:stop_client(Client),
   stop_players(Clients).

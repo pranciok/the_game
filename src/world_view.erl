@@ -56,7 +56,7 @@ add_player( World, CircleImg,  Pid ) ->
     end.
 
 new_player(CircleImg, XY, Pid) ->
-    Radius = 10,
+    Radius = 5,
     Size   = { Radius*2, Radius*2 },
 
     State  = actor_state:new( circle, XY, Size, [
