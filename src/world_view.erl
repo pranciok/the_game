@@ -30,7 +30,7 @@ new_world(CircleImg) ->
 initiate_players(CircleImg) ->
     Act = fun( AS, Parent ) ->
         LastLocation = actor_state:get_xy( AS ),
-        Player = players:get(),
+        Player = player_stack:get(),
         Location = {0,0},
         add_player( Parent, CircleImg, Player ),
         actor_state:set_xy(

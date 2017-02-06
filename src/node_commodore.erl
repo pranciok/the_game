@@ -70,7 +70,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% internal
 start_player_on_ward(WardId, undefined, Mode) ->
-  {ok, WardPid} = ward:start_ward(WardId),
+  {ok, WardPid} = ward:start(WardId),
   start_player(WardId, WardPid, Mode);
 start_player_on_ward(WardId, WardPid, Mode) ->
   start_player(WardId, WardPid, Mode).
@@ -82,7 +82,7 @@ start_player(WardId, WardPid, Mode) ->
   PlayerSpawnX = TopLeftWardCornerX + random:uniform(?WARD_SIZE),
   PlayerSpawnY = TopLeftWardCornerY + random:uniform(?WARD_SIZE),
   {ok, ClientPid} = player_handler:start(WardId),
-  ward:add_client(WardPid, ClientPid),
+  ward:add_player(WardPid, ClientPid),
   PlayerPid = player_simulator:spawn_player(ClientPid, PlayerSpawnX, PlayerSpawnY, Mode),
   player_handler:add_player_pid(ClientPid, PlayerPid),
   PlayerPid.

@@ -1,4 +1,4 @@
--module(players).
+-module(player_stack).
 -export([start/0, stop/0, init/0, get/0, create_players/3, add_players/1, stop_all_players/1]).
 
 

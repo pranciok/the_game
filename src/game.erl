@@ -6,7 +6,6 @@
          init_admiral_off/0,
          stop_simulation/0,
          cleanup/0,
-
          cluster_unidirectional/2,
          cluster_multidirectional/2,
          uniform_unidirectional/1,
@@ -44,7 +43,7 @@ init(AdmiralMode) ->
   populate_blank_ward_table(),
   admiral:start_link(AdmiralMode),
   rpc:multicall(Nodes, node_commodore, start_link, []),
-  players:start(),
+  player_stack:start(),
   MainLoop = world_view:start(),
   put(mainloop, MainLoop),
   ok.
@@ -55,7 +54,7 @@ stop_simulation() ->
 
 cleanup() ->
   {_, Nodes} = lists:unzip(?GAME_NODES),
-  players:stop_all_players(Nodes),
+  player_stack:stop_all_players(Nodes),
   rpc:multicall(Nodes, node_commodore, stop, []),
   rpc:call('admiral@gamel.cluster', admiral, stop, []),
   rpc:multicall(Nodes, application, stop, [mnesia]).
@@ -93,7 +92,7 @@ uniform(No, Mode) ->
 
 create_players_per_node(_, [], _Mode) -> ok;
 create_players_per_node(N, [Node|Nodes], Mode) ->
-  players:create_players(N, Node, Mode),
+  player_stack:create_players(N, Node, Mode),
   create_players_per_node(N, Nodes, Mode).
 
 populate_blank_ward_table() ->

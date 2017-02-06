@@ -5,11 +5,11 @@
 -include("settings.hrl").
 
 -export([start/1, execute_handover/2, moved/2, nearby_event/2,
-      add_player_pid/2, ward_changed_node/2, stop_client/1, stop_client/2]).
+      add_player_pid/2, ward_changed_node/2, stop/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
--record(player_state, {handler_pid, player_pid, position, ward_handover}). %%TODO:promjeni ovo u diplomskome (ward_handover)
+-record(player_state, {handler_pid, player_pid, position, ward_handover}). 
 -record(player_event, {handler_pid, action, from, to}).
 
 %%% Handler API
@@ -31,10 +31,7 @@ add_player_pid(Pid, PlayerPid) ->
 ward_changed_node(Pid, Node) ->
   gen_server:cast(Pid, {ward_changed_node, Node}).
 
-stop_client(Pid, handed_over) ->
-  gen_server:call(Pid, terminate).
-
-stop_client(Pid) ->
+stop(Pid) ->
   gen_server:call(Pid, cleanup),
   gen_server:call(Pid, terminate).
 
@@ -117,8 +114,8 @@ subscribe(OldWard, NewWard, HandlerState) ->
     [] -> nok;
     [NewW] ->
       put(my_ward, NewWard),
-      ward:remove_client(OldW#wards.pid, self()),
-      ward:add_client(NewW#wards.pid, self()),
+      ward:remove_player(OldW#wards.pid, self()),
+      ward:add_player(NewW#wards.pid, self()),
       MyNode = node(),
       case NewW#wards.node of
         MyNode -> ok;
@@ -150,7 +147,7 @@ notify([WardId|Wards], Event) ->
 handover(GameNode, WardId, HandlerState) ->
   {ok, NewHandlerPid} = rpc:call(GameNode, player_handler, execute_handover, [WardId, HandlerState]),
   [Ward] = mnesia:dirty_read(wards, WardId),
-  ward:replace_client(Ward#wards.pid, self(), NewHandlerPid),
+  ward:replace_player(Ward#wards.pid, self(), NewHandlerPid),
   HandlerState#player_state.player_pid ! {handover_done, NewHandlerPid},
   handover_done.
 

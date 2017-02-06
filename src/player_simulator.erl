@@ -38,7 +38,6 @@ loop_player(PlayerState) ->
       NodeColour = proplists:get_value(node(PlayerState#player_state.handler), ?COLOURS),
       SkipCounter = case PlayerState#player_state.skip_counter of
                       0 ->
-                        % ets:insert(players, {self(), scale_down({X,Y}), NodeColour}),
                         mnesia:dirty_write(#players{pid=self(), xy = scale_down({X, Y}), color = NodeColour}),
                         5; % odgadjanje pisanja u bazu
                       Counter -> Counter - 1
